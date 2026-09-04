@@ -1,0 +1,53 @@
+[
+  {
+    "id": "default-coding",
+    "name": "برمجة وتطوير (Coding Mode)",
+    "applicationId": "1347000000000000000",
+    "activityName": "Visual Studio Code",
+    "type": 0,
+    "details": "Developing Modern Web Apps",
+    "state": "CustomRP 24/7 Cloud Service",
+    "largeImage": "https://i.imgur.com/8Q1Q5vM.png",
+    "largeText": "VS Code Dark Mode",
+    "smallImage": "https://i.imgur.com/Y3KkQjP.png",
+    "smallText": "Active",
+    "button1Text": "عرض المشروع",
+    "button1Url": "https://github.com/maximmax42/Discord-CustomRP",
+    "button2Text": "سيرفر الدعم",
+    "button2Url": "https://discord.gg/928333025652121630"
+  },
+  {
+    "id": "default-gaming",
+    "name": "وضع الألعاب (Gaming Mode)",
+    "applicationId": "1347000000000000001",
+    "activityName": "Cyberpunk 2077",
+    "type": 0,
+    "details": "Exploring Night City",
+    "state": "Act II - Free Roam",
+    "largeImage": "https://i.imgur.com/8Q1Q5vM.png",
+    "largeText": "Cyberpunk 2077",
+    "smallImage": "https://i.imgur.com/Y3KkQjP.png",
+    "smallText": "Level 50",
+    "button1Text": "Steam Profile",
+    "button1Url": "https://steamcommunity.com",
+    "button2Text": "Join Game",
+    "button2Url": "https://discord.gg"
+  },
+  {
+    "id": "default-music",
+    "name": "استماع للموسيقى (Listening to Music)",
+    "applicationId": "1347000000000000002",
+    "activityName": "Lo-Fi Chill Beats",
+    "type": 2,
+    "details": "Chillhop Radio - Beats to relax/study to",
+    "state": "Synthesized Dreams",
+    "largeImage": "https://i.imgur.com/8Q1Q5vM.png",
+    "largeText": "Lo-Fi Beats",
+    "smallImage": "https://i.imgur.com/Y3KkQjP.png",
+    "smallText": "Listening",
+    "button1Text": "استمع الآن",
+    "button1Url": "https://youtube.com",
+    "button2Text": "قائمة التشغيل",
+    "button2Url": "https://spotify.com"
+  }
+]

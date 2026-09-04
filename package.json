@@ -1,0 +1,25 @@
+{
+  "name": "customrp-web",
+  "version": "1.0.0",
+  "description": "24/7 Discord Custom Rich Presence Web Service with Auto-Restart and Time Recovery",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "discord",
+    "rich-presence",
+    "rpc",
+    "24/7",
+    "customrp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.0",
+    "xml2js": "^0.6.2",
+    "dotenv": "^16.4.7"
+  }
+}

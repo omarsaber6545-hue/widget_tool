@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CustomRP 1.19.3 - 24/7 Cloud</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Cairo:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Top Utility Bar for 24/7 Controls and Live Preview Toggle -->
+  <div class="top-nav-bar">
+    <div class="top-nav-left">
+      <div class="cloud-badge">
+        <span class="pulse-indicator" id="cloudPulse"></span>
+        <span id="cloudStatusText">24/7 Cloud: Idle</span>
+      </div>
+      <div class="elapsed-counter-badge">
+        <span class="counter-label">Saved Elapsed:</span>
+        <span class="counter-val" id="topSavedElapsed">00:00:00</span>
+      </div>
+    </div>
+    <div class="top-nav-right">
+      <button id="btnOpenTokenModal" class="nav-action-btn">
+        <span class="btn-sym">🔑</span> Discord Token
+      </button>
+      <button id="btnOpenTimeRecoveryModal" class="nav-action-btn">
+        <span class="btn-sym">⏳</span> 24/7 Auto-Restart & Time
+      </button>
+      <button id="btnTogglePreview" class="nav-action-btn active" title="Toggle Discord Profile Live Preview">
+        <span class="btn-sym">👁️</span> Live Discord Card
+      </button>
+      <button id="btnToggleLogs" class="nav-action-btn" title="Toggle Live Console Logs">
+        <span class="btn-sym">💻</span> Live Logs
+      </button>
+    </div>
+  </div>
+
+  <div class="main-workspace" id="mainWorkspace">
+    <!-- EXACT CustomRP 1.19.3 Windows Application Mockup -->
+    <div class="customrp-window" id="customrpWindow">
+      <!-- Window Title Bar -->
+      <div class="win-titlebar">
+        <div class="win-title">
+          <img src="/assets/logo.png" alt="Icon" class="win-icon">
+          <span>CustomRP 1.19.3</span>
+        </div>
+        <div class="win-controls">
+          <button class="win-btn" id="winMinimize" title="Minimize">─</button>
+          <button class="win-btn" id="winMaximize" title="Maximize">▢</button>
+          <button class="win-btn win-close" id="winClose" title="Close">✕</button>
+        </div>
+      </div>
+
+      <!-- Menu Bar -->
+      <div class="win-menubar">
+        <div class="menu-item" id="menuFile">
+          File
+          <div class="menu-dropdown">
+            <div class="menu-action" id="menuLoadPreset">Load Preset... (.crp)</div>
+            <div class="menu-action" id="menuSavePreset">Save Preset... (.crp)</div>
+            <div class="menu-divider"></div>
+            <div class="menu-action" id="menuManagePresets">Manage Presets</div>
+          </div>
+        </div>
+        <div class="menu-item" id="menuSettings">
+          Settings
+          <div class="menu-dropdown">
+            <div class="menu-action" id="menuSettingsToken">Discord Token & Auth...</div>
+            <div class="menu-action" id="menuSettingsTime">24/7 & Time Recovery Settings...</div>
+            <div class="menu-divider"></div>
+            <div class="menu-action" id="menuResetTimerAction">Reset Elapsed Timer</div>
+          </div>
+        </div>
+        <div class="menu-item" id="menuHelp">
+          Help
+          <div class="menu-dropdown">
+            <a href="https://discord.com/developers/applications" target="_blank" class="menu-action">Discord Developer Portal ↗</a>
+            <div class="menu-action" id="menuHelpAssets">How to upload Images / Assets</div>
+            <div class="menu-action" id="menuHelpToken">How to get Discord Token</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Form Body (Exact replica of CustomRP 1.19.3) -->
+      <div class="win-body">
+        <!-- Row 1: ID, Type, Display -->
+        <div class="form-row row-id-type-display">
+          <label class="field-label" for="inpId">ID</label>
+          <div class="id-input-wrap">
+            <input type="text" id="inpId" class="win-input input-id valid-id" value="1545546198675624016" placeholder="Application ID">
+            <span class="assets-loader" id="assetsLoader" title="Loading assets...">⟳</span>
+          </div>
+
+          <label class="field-label" for="selType">Type</label>
+          <select id="selType" class="win-select">
+            <option value="0">Playing</option>
+            <option value="1">Streaming</option>
+            <option value="2">Listening</option>
+            <option value="3">Watching</option>
+            <option value="5">Competing</option>
+          </select>
+
+          <label class="field-label" for="selDisplay">Display</label>
+          <select id="selDisplay" class="win-select">
+            <option value="0">Name</option>
+            <option value="1">Details</option>
+            <option value="2">State</option>
+          </select>
+        </div>
+
+        <!-- Row 2: Name -->
+        <div class="form-row row-name">
+          <label class="field-label" for="inpName">Name</label>
+          <input type="text" id="inpName" class="win-input full-width" placeholder="Activity Name (Optional)">
+        </div>
+
+        <!-- Row 3: Details & URL -->
+        <div class="form-row row-details">
+          <label class="field-label" for="inpDetails">Details</label>
+          <input type="text" id="inpDetails" class="win-input flex-2" value="dev server" placeholder="dev server">
+
+          <label class="field-label" for="inpDetailsUrl">URL</label>
+          <input type="text" id="inpDetailsUrl" class="win-input flex-1" placeholder="https://...">
+        </div>
+
+        <!-- Row 4: State & URL -->
+        <div class="form-row row-state">
+          <label class="field-label" for="inpState">State</label>
+          <input type="text" id="inpState" class="win-input flex-2" value="codeing" placeholder="codeing">
+
+          <label class="field-label" for="inpStateUrl">URL</label>
+          <input type="text" id="inpStateUrl" class="win-input flex-1" placeholder="https://...">
+        </div>
+
+        <!-- Row 5: Party -->
+        <div class="form-row row-party">
+          <label class="field-label" for="inpPartySize">Party</label>
+          <div class="party-controls">
+            <input type="number" id="inpPartySize" class="win-input win-number" value="2" min="0" max="9999">
+            <span class="party-sep">of</span>
+            <input type="number" id="inpPartyMax" class="win-input win-number" value="2" min="0" max="9999">
+          </div>
+          <span class="field-hint-mini">(Shows as "(2 of 2)" in your Discord status)</span>
+        </div>
+
+        <!-- Row 6: Timestamp Box -->
+        <fieldset class="win-fieldset timestamp-fieldset">
+          <legend>Timestamp</legend>
+          <div class="timestamp-options">
+            <label class="win-radio-label">
+              <input type="radio" name="timestampRadio" value="0">
+              <span>Since last connection</span>
+            </label>
+            <label class="win-radio-label">
+              <input type="radio" name="timestampRadio" value="1">
+              <span>Since last presence update</span>
+            </label>
+            <label class="win-radio-label">
+              <input type="radio" name="timestampRadio" value="2">
+              <span>Since CustomRP started</span>
+            </label>
+            <label class="win-radio-label">
+              <input type="radio" name="timestampRadio" value="3">
+              <span>Your local time</span>
+            </label>
+            <label class="win-radio-label">
+              <input type="radio" name="timestampRadio" value="4" checked>
+              <span>Custom timestamp</span>
+            </label>
+
+            <!-- Custom timestamp picker row -->
+            <div class="custom-time-row" id="customTimeRow">
+              <label class="field-label" for="inpTimeStart">Start</label>
+              <input type="datetime-local" id="inpTimeStart" class="win-input date-picker">
+
+              <label class="win-checkbox-label">
+                <input type="checkbox" id="chkTimeEnd">
+                <span>End</span>
+              </label>
+              <input type="datetime-local" id="inpTimeEnd" class="win-input date-picker" disabled>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Row 7: Large Image & Small Image (Side by Side) -->
+        <div class="images-container">
+          <!-- Large Image Box -->
+          <fieldset class="win-fieldset image-column">
+            <legend>Large Image</legend>
+            <div class="image-sub-rows">
+              <div class="image-sub-row">
+                <label class="field-label" for="inpLargeKey">Key</label>
+                <div class="key-input-wrapper">
+                  <input type="text" id="inpLargeKey" class="win-input" list="largeAssetsList" placeholder="Asset key, URL, or upload">
+                  <datalist id="largeAssetsList"></datalist>
+                  <img src="" alt="" class="key-thumb-preview" id="largeThumb">
+                  <button type="button" class="btn-upload-asset" id="btnUploadLarge" title="Upload image from computer">📁</button>
+                  <input type="file" id="fileUploadLarge" accept="image/*" style="display: none;">
+                </div>
+              </div>
+              <div class="image-sub-row">
+                <label class="field-label" for="inpLargeText">Text</label>
+                <input type="text" id="inpLargeText" class="win-input" placeholder="Hover Tooltip">
+              </div>
+              <div class="image-sub-row">
+                <label class="field-label" for="inpLargeUrl">URL</label>
+                <input type="text" id="inpLargeUrl" class="win-input" placeholder="Clickable URL (Optional)">
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Small Image Box -->
+          <fieldset class="win-fieldset image-column">
+            <legend>Small Image</legend>
+            <div class="image-sub-rows">
+              <div class="image-sub-row">
+                <label class="field-label" for="inpSmallKey">Key</label>
+                <div class="key-input-wrapper">
+                  <input type="text" id="inpSmallKey" class="win-input" list="smallAssetsList" placeholder="Asset key, URL, or upload">
+                  <datalist id="smallAssetsList"></datalist>
+                  <img src="" alt="" class="key-thumb-preview" id="smallThumb">
+                  <button type="button" class="btn-upload-asset" id="btnUploadSmall" title="Upload image from computer">📁</button>
+                  <input type="file" id="fileUploadSmall" accept="image/*" style="display: none;">
+                </div>
+              </div>
+              <div class="image-sub-row">
+                <label class="field-label" for="inpSmallText">Text</label>
+                <input type="text" id="inpSmallText" class="win-input" placeholder="Hover Tooltip">
+              </div>
+              <div class="image-sub-row">
+                <label class="field-label" for="inpSmallUrl">URL</label>
+                <input type="text" id="inpSmallUrl" class="win-input" placeholder="Clickable URL (Optional)">
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Row 8: Button 1 & Button 2 (Side by Side) -->
+        <div class="buttons-container">
+          <!-- Button 1 Box -->
+          <fieldset class="win-fieldset button-column">
+            <legend>Button 1</legend>
+            <div class="button-sub-rows">
+              <div class="button-sub-row">
+                <label class="field-label" for="inpBtn1Text">Text</label>
+                <input type="text" id="inpBtn1Text" class="win-input" placeholder="Button Label">
+              </div>
+              <div class="button-sub-row">
+                <label class="field-label" for="inpBtn1Url">URL</label>
+                <input type="text" id="inpBtn1Url" class="win-input" placeholder="https://...">
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Button 2 Box -->
+          <fieldset class="win-fieldset button-column">
+            <legend>Button 2</legend>
+            <div class="button-sub-rows">
+              <div class="button-sub-row">
+                <label class="field-label" for="inpBtn2Text">Text</label>
+                <input type="text" id="inpBtn2Text" class="win-input" placeholder="Button Label">
+              </div>
+              <div class="button-sub-row">
+                <label class="field-label" for="inpBtn2Url">URL</label>
+                <input type="text" id="inpBtn2Url" class="win-input" placeholder="https://...">
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Row 9: Actions Row -->
+        <div class="win-actions-row">
+          <div class="actions-left">
+            <button id="btnConnect" class="win-button btn-connect">Connect</button>
+            <button id="btnDisconnect" class="win-button btn-disconnect" disabled>Disconnect</button>
+          </div>
+          <div class="actions-right">
+            <button id="btnUpdatePresence" class="win-button btn-update">Update Presence</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 10: Status Bar -->
+      <div class="win-statusbar">
+        <div class="status-left" id="statusUser">rip_luufy25100</div>
+        <div class="status-right" id="statusConnection">Connected</div>
+      </div>
+    </div>
+
+    <!-- Right Side: Live Discord Profile Preview Card -->
+    <div class="preview-side-card" id="previewSideCard">
+      <div class="preview-side-header">
+        <h3>Discord Live Preview</h3>
+        <span class="preview-live-badge"><span class="preview-live-dot"></span> LIVE</span>
+      </div>
+
+      <div class="discord-card">
+        <div class="discord-banner" id="cardBanner"></div>
+        <div class="discord-avatar-container">
+          <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar" class="discord-avatar" id="cardAvatar">
+          <span class="discord-status-bubble" id="cardStatusBubble"></span>
+        </div>
+        <div class="discord-user-info">
+          <div class="discord-display-name" id="cardDisplayName">rip_luufy25100</div>
+          <div class="discord-username" id="cardUsername">@rip_luufy25100</div>
+        </div>
+        <div class="discord-divider"></div>
+        <div class="discord-activity-section">
+          <div class="activity-type-header" id="cardActivityHeader">PLAYING A GAME</div>
+          <div class="activity-body">
+            <div class="activity-assets-wrapper" id="cardAssetsWrapper">
+              <div class="large-image-box">
+                <img src="/assets/logo.png" alt="Large Asset" id="cardLargeImg" class="large-image">
+                <span class="tooltip" id="cardLargeTooltip">CustomRP</span>
+                <div class="small-image-box" id="cardSmallBox" style="display: none;">
+                  <img src="" alt="Small Asset" id="cardSmallImg" class="small-image">
+                  <span class="tooltip" id="cardSmallTooltip"></span>
+                </div>
+              </div>
+            </div>
+            <div class="activity-text-wrapper">
+              <div class="activity-name" id="cardAppName">CustomRP</div>
+              <div class="activity-details" id="cardDetails">dev server</div>
+              <div class="activity-state-row">
+                <span class="activity-state" id="cardState">codeing</span>
+                <span class="activity-party" id="cardParty">(2 of 2)</span>
+              </div>
+              <div class="activity-time-row" id="cardTimeRow">
+                <span class="time-clock-icon">⏱</span>
+                <span class="activity-timer" id="cardElapsedTimer">00:00:00 elapsed</span>
+              </div>
+            </div>
+          </div>
+          <div class="activity-buttons" id="cardButtons" style="display: none;">
+            <a href="#" target="_blank" class="discord-btn" id="cardBtn1" style="display: none;">
+              <span>Button 1</span>
+              <svg class="external-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7Z"/></svg>
+            </a>
+            <a href="#" target="_blank" class="discord-btn" id="cardBtn2" style="display: none;">
+              <span>Button 2</span>
+              <svg class="external-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7Z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Info Box -->
+      <div class="preview-info-box">
+        <div class="info-row">
+          <span>Party Status:</span>
+          <strong id="infoPartyText">Active (2 of 2)</strong>
+        </div>
+        <div class="info-row">
+          <span>Image Status:</span>
+          <strong id="infoImageText">Key loaded</strong>
+        </div>
+        <div class="info-row">
+          <span>24/7 Resilience:</span>
+          <strong id="infoRecoveryText">Auto-Resume ON</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Terminal Logs Drawer -->
+  <div class="logs-drawer" id="logsDrawer">
+    <div class="logs-drawer-header">
+      <div class="logs-title">
+        <span>💻</span> Live WebSocket Gateway Logs (<span id="drawerLogCount">0</span> events)
+      </div>
+      <div class="logs-drawer-actions">
+        <button id="btnClearDrawerLogs" class="win-button btn-sm">Clear</button>
+        <button id="btnCloseDrawerLogs" class="win-button btn-sm">✕ Close</button>
+      </div>
+    </div>
+    <div class="logs-terminal" id="drawerTerminal">
+      <div class="log-line log-info">[00:00:00] [SYSTEM] Ready and listening for Discord Gateway events...</div>
+    </div>
+  </div>
+
+  <!-- Modal 1: Discord Token Settings -->
+  <div class="modal-overlay" id="tokenModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Discord Account Token</h3>
+        <button class="modal-close-btn" id="btnCloseTokenModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          To broadcast your presence 24/7 in the cloud without keeping your PC on, CustomRP Web connects to Discord Gateway using your user token.
+        </p>
+        <div class="modal-field">
+          <label for="inpToken">User Token:</label>
+          <div class="token-input-row">
+            <input type="password" id="inpToken" class="win-input full-width" placeholder="Paste your Discord User Token here">
+            <button type="button" id="btnToggleTokenVisibility" class="win-button">👁</button>
+          </div>
+          <span class="field-hint">Token is stored locally on this machine/server only.</span>
+        </div>
+
+        <div class="token-guide-box">
+          <strong>How to get your token in 10 seconds:</strong>
+          <ol>
+            <li>Open <a href="https://discord.com/app" target="_blank">discord.com/app</a> in Chrome/Brave.</li>
+            <li>Press <kbd>F12</kbd> > Console.</li>
+            <li>Paste this snippet and press <kbd>Enter</kbd>:</li>
+          </ol>
+          <div class="code-snippet-box">
+            <code>window.webpackChunkdiscord_app.push([[Math.random()],{},(req)=>{for(const m of Object.keys(req.c).map(x=>req.c[x].exports).filter(x=>x)){if(m.default&&m.default.getToken!==undefined){return console.log('%cYour Token: %c'+m.default.getToken(),'color:gray','color:#5865F2;font-weight:bold;font-size:14px')}if(m.getToken!==undefined){return console.log('%cYour Token: %c'+m.getToken(),'color:gray','color:#5865F2;font-weight:bold;font-size:14px')}}}]);</code>
+            <button id="btnCopyCode" class="win-button btn-sm">Copy Code</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnSaveTokenModal" class="win-button btn-connect">Save Token</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: 24/7 & Time Recovery Settings -->
+  <div class="modal-overlay" id="timeRecoveryModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>24/7 Cloud Resilience & Time Recovery</h3>
+        <button class="modal-close-btn" id="btnCloseTimeModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-block">
+          <label class="toggle-label">
+            <input type="checkbox" id="chkModalAutoRestart" checked>
+            <strong>Enable Auto-Restart on Connection Loss / Crash</strong>
+          </label>
+          <p class="modal-sub">Automatically reconnects with exponential backoff if network or Discord server disconnects.</p>
+        </div>
+
+        <div class="setting-block">
+          <strong>Time Recovery Mode (استئناف الوقت عند التوقف):</strong>
+          <div class="time-radio-group">
+            <label class="time-radio-option">
+              <input type="radio" name="recoveryMode" value="resume_elapsed" checked>
+              <div>
+                <strong>Resume Stopped Time (استئناف من نفس وقت التوقف - Recommended)</strong>
+                <p>Preserves accumulated seconds. If it disconnects or restarts, Discord continues from the exact second it stopped!</p>
+              </div>
+            </label>
+            <label class="time-radio-option">
+              <input type="radio" name="recoveryMode" value="continuous">
+              <div>
+                <strong>Continuous Time (الحفاظ على تاريخ البدء الأصلي)</strong>
+                <p>Maintains initial start timestamp continuously.</p>
+              </div>
+            </label>
+            <label class="time-radio-option">
+              <input type="radio" name="recoveryMode" value="none">
+              <div>
+                <strong>No Timestamp</strong>
+                <p>Hides the elapsed timer completely.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-block">
+          <strong>Keep-Alive URL (For 24/7 Free Cloud Hosting like Render / Koyeb):</strong>
+          <p class="modal-sub">Add this URL to <a href="https://uptimerobot.com" target="_blank">UptimeRobot</a> (every 5 min) to keep your server running 24/7 for free:</p>
+          <div class="keepalive-input-row">
+            <input type="text" id="modalPingUrl" class="win-input full-width" readonly value="http://localhost:3000/health">
+            <button id="btnCopyPingUrl" class="win-button">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnSaveTimeSettings" class="win-button btn-connect">Apply Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden File Input for CRP Presets -->
+  <input type="file" id="filePickerCrp" accept=".crp,.xml" style="display: none;">
+
+  <!-- Toast Notification -->
+  <div id="appToast" class="win-toast"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
