@@ -428,14 +428,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Party size automatic validation (partyMax >= partySize)
-  inpPartySize.addEventListener('change', () => {
-    const s = parseInt(inpPartySize.value, 10) || 0;
-    const m = parseInt(inpPartyMax.value, 10) || 0;
-    if (s > m) {
-      inpPartyMax.value = s;
+  const validateParty = () => {
+    const s = parseInt(inpPartySize.value, 10);
+    const m = parseInt(inpPartyMax.value, 10);
+    if (!isNaN(s) && !isNaN(m)) {
+      if (m === 0) {
+        inpPartySize.value = 0;
+      } else if (s > m) {
+        inpPartyMax.value = s;
+      }
     }
     updatePreview();
-  });
+  };
+  inpPartySize.addEventListener('input', validateParty);
+  inpPartySize.addEventListener('change', validateParty);
+  inpPartyMax.addEventListener('input', validateParty);
+  inpPartyMax.addEventListener('change', validateParty);
 
   // Checkbox end time toggle
   chkTimeEnd.addEventListener('change', () => {
@@ -636,17 +644,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnUpdatePresence.addEventListener('click', async () => {
+    btnUpdatePresence.disabled = true;
+    btnUpdatePresence.textContent = 'Updating...';
     const config = buildConfigFromForm();
-    const res = await fetch('/api/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config)
-    });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Presence updated successfully!');
-    } else {
-      showToast('Failed to update presence', true);
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('تم حفظ وتحديث النشاط على ديسكورد فوراً! ✓');
+        // إذا كان التواجد متوقفاً، نطلب بدء الاتصال فوراً
+        if (!appState || appState.status !== 'running') {
+          await fetch('/api/start', { method: 'POST' });
+        }
+      } else {
+        showToast(data.message || 'فشل تحديث النشاط', true);
+      }
+    } catch (e) {
+      showToast('خطأ في الاتصال بالسيرفر: ' + e.message, true);
+    } finally {
+      btnUpdatePresence.disabled = false;
+      btnUpdatePresence.textContent = 'Update Presence';
     }
   });
 

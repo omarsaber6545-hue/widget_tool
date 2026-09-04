@@ -118,6 +118,9 @@ class DiscordGateway {
 
   stop(reason = 'تم إيقاف الخدمة يدوياً') {
     this.isManualStop = true;
+    this.sessionId = null;
+    this.lastSequence = null;
+    this.resumeGatewayUrl = null;
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
@@ -369,7 +372,7 @@ class DiscordGateway {
     const partyMax = parseInt(cfg.partyMax, 10);
     if (!isNaN(partySize) && !isNaN(partyMax) && partySize > 0 && partyMax > 0) {
       activity.party = {
-        id: "CustomRP",
+        id: `crp_${cfg.applicationId || 'app'}_${partySize}_${partyMax}_${Date.now()}`,
         size: [partySize, Math.max(partySize, partyMax)]
       };
     }

@@ -89,9 +89,11 @@ app.post('/api/config', (req, res) => {
   stateManager.updateConfig(newConfig);
   discordGateway.log('info', 'تم حفظ وتحديث إعدادات التواجد بنجاح');
 
-  // إذا كان متصلاً، أرسل تحديث النشاط فوراً إلى ديسكورد
+  // إرسال تحديث النشاط فوراً إلى ديسكورد إذا كان متصلاً، أو بدء الاتصال إذا كان متوقفاً
   if (stateManager.getState().status === 'running') {
-    discordGateway.updatePresence();
+    await discordGateway.updatePresence();
+  } else if (newConfig.token && newConfig.token.trim()) {
+    discordGateway.start();
   }
 
   res.json({ success: true, state: stateManager.getState() });
