@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const xml2js = require('xml2js');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DATA_DIR = process.env.VERCEL ? '/tmp' : path.join(__dirname, '..', 'data');
 const PRESETS_FILE = path.join(DATA_DIR, 'presets.json');
 
 class PresetManager {

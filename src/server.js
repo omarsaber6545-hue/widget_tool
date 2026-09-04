@@ -271,22 +271,29 @@ app.get(['/health', '/ping', '/api/keepalive'], (req, res) => {
   });
 });
 
-// تشغيل الخادم
-app.listen(PORT, () => {
-  console.log(`=======================================================`);
-  console.log(`🚀 خادم CustomRP Web 24/7 يعمل بنجاح على المنفذ ${PORT}`);
-  console.log(`🌐 افتح لوحة التحكم عبر: http://localhost:${PORT}`);
-  console.log(`=======================================================`);
+// تشغيل الخادم محلياً أو على Render/VPS
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`=======================================================`);
+    console.log(`🚀 خادم CustomRP Web 24/7 يعمل بنجاح على المنفذ ${PORT}`);
+    console.log(`🌐 افتح لوحة التحكم عبر: http://localhost:${PORT}`);
+    console.log(`=======================================================`);
 
-  // ميزة الاستئناف التلقائي الفوري عند إقلاع النظام / السيرفر:
-  // إذا كانت الخدمة تعمل قبل إعادة التشغيل أو ميزة autoRestart مفعلة
+    // ميزة الاستئناف التلقائي الفوري عند إقلاع النظام / السيرفر:
+    const state = stateManager.getState();
+    if (state.autoRestart && state.config.token && state.config.token.trim()) {
+      console.log(`[Auto-Start] جاري استئناف النشاط تلقائياً بناءً على الحالة المحفوظة...`);
+      discordGateway.log('info', 'تم تشغيل الخادم، جاري استئناف النشاط تلقائياً وحساب الوقت المنقضي...');
+      discordGateway.start();
+    }
+  });
+} else {
+  // عند التشغيل على Vercel Serverless
   const state = stateManager.getState();
-  if (state.autoRestart && state.config.token && state.config.token.trim()) {
-    console.log(`[Auto-Start] جاري استئناف النشاط تلقائياً بناءً على الحالة المحفوظة...`);
-    discordGateway.log('info', 'تم تشغيل الخادم، جاري استئناف النشاط تلقائياً وحساب الوقت المنقضي...');
+  if (state.config.token && state.config.token.trim()) {
     discordGateway.start();
   }
-});
+}
 
 // الإيقاف الآمن (Graceful Shutdown) لحفظ الثواني المنقضية بدقة عند إعادة تشغيل السيرفر أو الحاوية
 const handleExit = (signal) => {
@@ -297,3 +304,5 @@ const handleExit = (signal) => {
 
 process.on('SIGINT', () => handleExit('SIGINT'));
 process.on('SIGTERM', () => handleExit('SIGTERM'));
+
+module.exports = app;
