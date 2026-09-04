@@ -476,11 +476,25 @@ document.addEventListener('DOMContentLoaded', () => {
       button2Url: inpBtn2Url.value.trim(),
       token: inpToken.value.trim()
     };
+    try {
+      localStorage.setItem('customrp_saved_config', JSON.stringify(config));
+    } catch (e) {}
+    return config;
   }
 
   // 4. Populate Form from State
   function populateFormFromState(cfg) {
     if (!cfg) return;
+
+    // Restore from localStorage if server state is blank (crucial for Vercel serverless)
+    try {
+      const local = localStorage.getItem('customrp_saved_config');
+      if (local) {
+        const parsed = JSON.parse(local);
+        cfg = { ...parsed, ...cfg };
+        if (!cfg.token && parsed.token) cfg.token = parsed.token;
+      }
+    } catch (e) {}
     if (cfg.applicationId) inpId.value = cfg.applicationId;
     if (cfg.name !== undefined) inpName.value = cfg.name;
     if (cfg.type !== undefined) selType.value = cfg.type;
