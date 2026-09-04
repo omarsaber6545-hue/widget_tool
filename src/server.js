@@ -80,7 +80,7 @@ app.post('/api/reset-timer', (req, res) => {
 });
 
 // 5. تحديث الإعدادات
-app.post('/api/config', (req, res) => {
+app.post('/api/config', async (req, res) => {
   const newConfig = req.body;
   if (!newConfig) {
     return res.status(400).json({ success: false, message: 'بيانات غير صالحة' });
