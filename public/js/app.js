@@ -503,6 +503,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return config;
   }
 
+  // Save current form settings explicitly to localStorage
+  function saveFormToLocalStorage() {
+    try {
+      const config = buildConfigFromForm();
+      localStorage.setItem('customrp_saved_config', JSON.stringify(config));
+      return config;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // 4. Populate Form from State
   function populateFormFromState(cfg) {
     if (!cfg) return;
