@@ -246,16 +246,31 @@ app.get('/api/discord/assets/:appId', async (req, res) => {
   if (!appId || !/^\d+$/.test(appId)) {
     return res.json({ success: true, assets: [] });
   }
+
+  const KNOWN_FALLBACKS = {
+    '1545546198675624016': [
+      { id: '1545574027740053535', type: 1, name: 'hz' },
+      { id: '1545575767713390622', type: 1, name: 'an' },
+      { id: '1545595183033225346', type: 1, name: 'google_antigravity_icon_full_col' }
+    ],
+    '1536166390443278337': [
+      { id: '1545569728041582713', type: 1, name: 'hz' },
+      { id: '1545576290281721926', type: 1, name: 'google_antigravity_icon_full_col' }
+    ]
+  };
+
   try {
     const response = await fetch(`https://discord.com/api/v9/oauth2/applications/${appId}/assets`);
     if (response.ok) {
       const assets = await response.json();
-      return res.json({ success: true, assets });
+      if (Array.isArray(assets) && assets.length > 0) {
+        return res.json({ success: true, assets });
+      }
     }
-    res.json({ success: true, assets: [] });
-  } catch (err) {
-    res.json({ success: true, assets: [] });
-  }
+  } catch (err) {}
+
+  const fallback = KNOWN_FALLBACKS[appId] || [];
+  res.json({ success: true, assets: fallback });
 });
 
 // 9. الـ Presets (التخصيصات)

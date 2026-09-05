@@ -50,24 +50,53 @@ class DiscordGateway {
       k = 'hz';
     }
 
+    const lowerK = k.toLowerCase();
+
     // 3. البحث في كاش أصول التطبيق المجلوبة من ديسكورد
     const cached = this.appAssetsCache.get(appId);
-    if (cached && Array.isArray(cached)) {
-      const found = cached.find(a => a.name && a.name.toLowerCase() === k.toLowerCase());
-      if (found) {
-        return found.id; // Snowflake ID الرسمي المطلوب لديسكورد لمنع النرد والاستفهام!
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      let found = cached.find(a => a.name && a.name.toLowerCase() === lowerK);
+      if (!found) {
+        found = cached.find(a => a.name && (a.name.toLowerCase().startsWith(lowerK) || lowerK.startsWith(a.name.toLowerCase())));
       }
-      if (cached.length === 1 && (k === 'hz' || k === 'logo' || k === 'default')) {
+      if (!found) {
+        found = cached.find(a => a.name && (a.name.toLowerCase().includes(lowerK) || lowerK.includes(a.name.toLowerCase())));
+      }
+      if (found) {
+        return found.id;
+      }
+      if (cached.length === 1 && (lowerK === 'hz' || lowerK === 'logo' || lowerK === 'default')) {
         return cached[0].id;
       }
     }
 
-    // 4. تعويضات مباشرة لتطبيقات Horizon
-    if (appId === '1545546198675624016') {
-      return '1545574027740053535';
-    }
-    if (appId === '1536166390443278337') {
-      return '1545569728041582713';
+    // 4. تعويضات مباشرة ومعروفة لتطبيقات ديسكورد المسجلة
+    const KNOWN_ASSET_MAP = {
+      '1545546198675624016': {
+        'hz': '1545574027740053535',
+        'an': '1545575767713390622',
+        'google_antigravity_icon_full_col': '1545595183033225346',
+        'google_antigravity_icon_full': '1545595183033225346',
+        'google_antigravity': '1545595183033225346',
+        'antigravity': '1545595183033225346'
+      },
+      '1536166390443278337': {
+        'hz': '1545569728041582713',
+        'google_antigravity_icon_full_col': '1545576290281721926',
+        'google_antigravity_icon_full': '1545576290281721926',
+        'google_antigravity': '1545576290281721926',
+        'antigravity': '1545576290281721926'
+      }
+    };
+
+    if (KNOWN_ASSET_MAP[appId]) {
+      const dict = KNOWN_ASSET_MAP[appId];
+      if (dict[lowerK]) return dict[lowerK];
+      for (const [keyName, assetId] of Object.entries(dict)) {
+        if (keyName.startsWith(lowerK) || lowerK.startsWith(keyName) || (lowerK.includes('anti') && keyName.includes('anti'))) {
+          return assetId;
+        }
+      }
     }
 
     return k;

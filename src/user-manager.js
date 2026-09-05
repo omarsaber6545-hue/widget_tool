@@ -180,11 +180,17 @@ class UserManager {
         ...userRecord.profile,
         ...profile
       };
-      // إذا قام المستخدم بتعديل بيانات على الشاشة قبل تسجيل الدخول، نحفظها له ولا نمسحها
+      // إذا قام المستخدم بتعديل بيانات على الشاشة قبل تسجيل الدخول، نحفظها له ولا نمسحها بقيم فارغة
       if (currentConfig && Object.keys(currentConfig).length > 0) {
+        const validOverrides = {};
+        for (const [k, v] of Object.entries(currentConfig)) {
+          if (v !== '' && v !== null && v !== undefined) {
+            validOverrides[k] = v;
+          }
+        }
         userRecord.config = {
           ...userRecord.config,
-          ...currentConfig
+          ...validOverrides
         };
       }
       userRecord.config.token = cleanToken;

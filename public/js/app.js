@@ -37,6 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const largeThumb = document.getElementById('largeThumb');
   const smallThumb = document.getElementById('smallThumb');
 
+  // Prevent broken image icons ([x]) from ever rendering
+  if (largeThumb) {
+    largeThumb.addEventListener('load', () => { largeThumb.style.display = 'block'; });
+    largeThumb.addEventListener('error', () => { largeThumb.style.display = 'none'; });
+  }
+  if (smallThumb) {
+    smallThumb.addEventListener('load', () => { smallThumb.style.display = 'block'; });
+    smallThumb.addEventListener('error', () => { smallThumb.style.display = 'none'; });
+  }
+  if (cardLargeImg) {
+    cardLargeImg.addEventListener('error', () => { cardLargeImg.src = '/assets/logo.png'; });
+  }
+  if (cardSmallImg) {
+    cardSmallImg.addEventListener('error', () => { if (cardSmallBox) cardSmallBox.style.display = 'none'; });
+  }
+
   // Buttons
   const inpBtn1Text = document.getElementById('inpBtn1Text');
   const inpBtn1Url = document.getElementById('inpBtn1Url');
@@ -186,10 +202,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const largeKeyVal = inpLargeKey.value.trim();
     if (largeKeyVal) {
       let resolvedSrc = resolveImageSrc(largeKeyVal, inpId.value.trim());
-      cardLargeImg.src = resolvedSrc;
-      cardLargeImg.style.display = 'block';
-      largeThumb.src = resolvedSrc;
-      largeThumb.style.display = 'block';
+      if (resolvedSrc) {
+        cardLargeImg.src = resolvedSrc;
+        cardLargeImg.style.display = 'block';
+        largeThumb.style.display = 'none'; // will turn to block on image load
+        largeThumb.src = resolvedSrc;
+      } else {
+        largeThumb.style.display = 'none';
+        cardLargeImg.src = '/assets/logo.png';
+      }
       cardLargeTooltip.textContent = inpLargeText.value.trim() || largeKeyVal;
       infoImageText.textContent = 'Active: ' + (largeKeyVal.length > 15 ? largeKeyVal.slice(0, 15) + '...' : largeKeyVal);
     } else {
@@ -203,10 +224,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const smallKeyVal = inpSmallKey.value.trim();
     if (smallKeyVal) {
       let resolvedSmall = resolveImageSrc(smallKeyVal, inpId.value.trim());
-      cardSmallBox.style.display = 'block';
-      cardSmallImg.src = resolvedSmall;
-      smallThumb.src = resolvedSmall;
-      smallThumb.style.display = 'block';
+      if (resolvedSmall) {
+        cardSmallBox.style.display = 'block';
+        cardSmallImg.src = resolvedSmall;
+        smallThumb.style.display = 'none'; // will turn to block on image load
+        smallThumb.src = resolvedSmall;
+      } else {
+        cardSmallBox.style.display = 'none';
+        smallThumb.style.display = 'none';
+      }
       cardSmallTooltip.textContent = inpSmallText.value.trim() || smallKeyVal;
     } else {
       cardSmallBox.style.display = 'none';
@@ -242,81 +268,129 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Pre-known asset maps for instant preview without waiting for network requests
+  const KNOWN_APP_ASSETS = {
+    '1545546198675624016': {
+      'hz': '1545574027740053535',
+      'an': '1545575767713390622',
+      'google_antigravity_icon_full_col': '1545595183033225346',
+      'google_antigravity_icon_full': '1545595183033225346',
+      'google_antigravity': '1545595183033225346',
+      'antigravity': '1545595183033225346'
+    },
+    '1536166390443278337': {
+      'hz': '1545569728041582713',
+      'google_antigravity_icon_full_col': '1545576290281721926',
+      'google_antigravity_icon_full': '1545576290281721926',
+      'google_antigravity': '1545576290281721926',
+      'antigravity': '1545576290281721926'
+    }
+  };
+
   // Helper to resolve asset key or direct URL into an image source
   function resolveImageSrc(keyOrUrl, appId) {
-    if (!keyOrUrl) return '/assets/logo.png';
-    // If user pasted local file path or it contains هورايزن
-    if (keyOrUrl.startsWith('file://') || /^[A-Z]:[\\\/]/i.test(keyOrUrl) || keyOrUrl.includes('هورايزن') || keyOrUrl.includes('%D9%87%D9%88%D8%B1%D8%A7%D9%8A%D8%B2%D9%86')) {
-      if (appId === '1545546198675624016') {
-        return 'https://cdn.discordapp.com/app-assets/1545546198675624016/1545574027740053535.png';
-      }
+    if (!keyOrUrl) return '';
+    const cleanKey = String(keyOrUrl).trim();
+    if (!cleanKey) return '';
+
+    // Direct HTTP or HTTPS link
+    if (cleanKey.startsWith('http://') || cleanKey.startsWith('https://')) {
+      return cleanKey;
+    }
+
+    // Local file path or arabic name pasted
+    if (cleanKey.startsWith('file://') || /^[A-Z]:[\\\/]/i.test(cleanKey) || cleanKey.includes('هورايزن') || cleanKey.includes('%D9%87%D9%88%D8%B1%D8%A7%D9%8A%D8%B2%D9%86')) {
       if (appId === '1536166390443278337') {
         return 'https://cdn.discordapp.com/app-assets/1536166390443278337/1545569728041582713.png';
       }
       return 'https://cdn.discordapp.com/app-assets/1545546198675624016/1545574027740053535.png';
     }
-    if (keyOrUrl.startsWith('http://') || keyOrUrl.startsWith('https://')) {
-      return keyOrUrl;
+
+    // If it's already a numeric Discord snowflake ID (17-21 digits)
+    if (/^\d{17,21}$/.test(cleanKey) && appId) {
+      return `https://cdn.discordapp.com/app-assets/${appId}/${cleanKey}.png`;
     }
-    // If it's 'hz'
-    if (keyOrUrl.toLowerCase() === 'hz' && appId) {
-      if (appId === '1545546198675624016') {
-        return 'https://cdn.discordapp.com/app-assets/1545546198675624016/1545574027740053535.png';
+
+    const lower = cleanKey.toLowerCase();
+
+    // Check pre-registered known assets for this application
+    if (appId && KNOWN_APP_ASSETS[appId]) {
+      const dict = KNOWN_APP_ASSETS[appId];
+      if (dict[lower]) {
+        return `https://cdn.discordapp.com/app-assets/${appId}/${dict[lower]}.png`;
       }
-      if (appId === '1536166390443278337') {
-        return 'https://cdn.discordapp.com/app-assets/1536166390443278337/1545569728041582713.png';
+      for (const [k, id] of Object.entries(dict)) {
+        if (k.startsWith(lower) || lower.startsWith(k) || (lower.includes('anti') && k.includes('anti'))) {
+          return `https://cdn.discordapp.com/app-assets/${appId}/${id}.png`;
+        }
       }
     }
-    const found = loadedAssets.find(a => a.name.toLowerCase() === keyOrUrl.toLowerCase() || a.id === keyOrUrl);
-    if (found && appId) {
-      return `https://cdn.discordapp.com/app-assets/${appId}/${found.id}.png`;
+
+    // Check loadedAssets fetched from Discord API
+    if (Array.isArray(loadedAssets) && loadedAssets.length > 0 && appId) {
+      let found = loadedAssets.find(a => a.name && a.name.toLowerCase() === lower);
+      if (!found) {
+        found = loadedAssets.find(a => a.name && (a.name.toLowerCase().startsWith(lower) || lower.startsWith(a.name.toLowerCase())));
+      }
+      if (!found) {
+        found = loadedAssets.find(a => a.name && (a.name.toLowerCase().includes(lower) || lower.includes(a.name.toLowerCase())));
+      }
+      if (found) {
+        return `https://cdn.discordapp.com/app-assets/${appId}/${found.id}.png`;
+      }
     }
-    if (/^\d{17,21}$/.test(keyOrUrl) && appId) {
-      return `https://cdn.discordapp.com/app-assets/${appId}/${keyOrUrl}.png`;
-    }
-    return `https://cdn.discordapp.com/app-assets/${appId}/${keyOrUrl}.png`;
+
+    // If key cannot be resolved, return empty string to avoid browser 404 broken image icons
+    return '';
   }
 
   // 2. Fetch Assets for Application ID
   async function fetchApplicationAssets(appId) {
-    if (!appId || !/^\d{17,20}$/.test(appId)) return;
-    assetsLoader.style.display = 'block';
+    if (!appId || !/^\d{17,21}$/.test(appId)) return;
+    if (assetsLoader) assetsLoader.style.display = 'block';
     try {
       const res = await fetch(`/api/discord/assets/${appId}`);
       const data = await res.json();
-      assetsLoader.style.display = 'none';
-      if (data.success && Array.isArray(data.assets)) {
+      if (assetsLoader) assetsLoader.style.display = 'none';
+      if (data.success && Array.isArray(data.assets) && data.assets.length > 0) {
         loadedAssets = data.assets;
-        largeAssetsList.innerHTML = '';
-        smallAssetsList.innerHTML = '';
+        if (largeAssetsList) largeAssetsList.innerHTML = '';
+        if (smallAssetsList) smallAssetsList.innerHTML = '';
         data.assets.forEach(asset => {
-          const opt1 = document.createElement('option');
-          opt1.value = asset.name;
-          opt1.textContent = `${asset.name} (Discord Asset ID: ${asset.id})`;
-          largeAssetsList.appendChild(opt1);
+          if (largeAssetsList) {
+            const opt1 = document.createElement('option');
+            opt1.value = asset.name;
+            opt1.textContent = `${asset.name} (Discord ID: ${asset.id})`;
+            largeAssetsList.appendChild(opt1);
+          }
 
-          const opt2 = document.createElement('option');
-          opt2.value = asset.name;
-          opt2.textContent = `${asset.name} (Discord Asset ID: ${asset.id})`;
-          smallAssetsList.appendChild(opt2);
+          if (smallAssetsList) {
+            const opt2 = document.createElement('option');
+            opt2.value = asset.name;
+            opt2.textContent = `${asset.name} (Discord ID: ${asset.id})`;
+            smallAssetsList.appendChild(opt2);
+          }
         });
-
-        if (data.assets.length > 0) {
-          showToast(`تم العثور على ${data.assets.length} صورة مرفوعة في ديسكورد لهذا التطبيق!`);
-        }
         updatePreview();
       }
     } catch (err) {
-      assetsLoader.style.display = 'none';
+      if (assetsLoader) assetsLoader.style.display = 'none';
     }
   }
 
-  // Auto-detect and fix local file path pasted into Key fields
+  // Auto-detect and fix local file path or partial asset names
   function sanitizeKeyInput(inputEl) {
     let val = inputEl.value.trim();
+    if (!val) return;
     if (val.startsWith('file://') || /^[A-Z]:[\\\/]/i.test(val) || val.includes('هورايزن') || val.includes('%D9%87%D9%88%D8%B1%D8%A7%D9%8A%D8%B2%D9%86')) {
       inputEl.value = 'hz';
       showToast('تم تحويل المسار المحلي تلقائياً لمفتاح ديسكورد الرسمي: hz ✓');
+      updatePreview();
+      return;
+    }
+    const lower = val.toLowerCase();
+    if (lower.startsWith('google_antigravity') || (lower.includes('anti') && lower.includes('google'))) {
+      inputEl.value = 'google_antigravity_icon_full_col';
       updatePreview();
     }
   }
@@ -436,8 +510,17 @@ document.addEventListener('DOMContentLoaded', () => {
     input.addEventListener('change', updatePreview);
   });
 
-  inpId.addEventListener('blur', () => {
-    fetchApplicationAssets(inpId.value.trim());
+  const onAppIdChange = () => {
+    const id = inpId.value.trim();
+    if (/^\d{17,21}$/.test(id)) {
+      fetchApplicationAssets(id);
+    }
+  };
+  inpId.addEventListener('blur', onAppIdChange);
+  inpId.addEventListener('change', onAppIdChange);
+  inpId.addEventListener('input', () => {
+    clearTimeout(window._appIdDebounce);
+    window._appIdDebounce = setTimeout(onAppIdChange, 500);
   });
 
   // Party size automatic validation (partyMax >= partySize)
@@ -527,7 +610,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!cfg.token && parsed.token) cfg.token = parsed.token;
       }
     } catch (e) {}
-    if (cfg.applicationId) inpId.value = cfg.applicationId;
+    if (cfg.applicationId) {
+      inpId.value = cfg.applicationId;
+      fetchApplicationAssets(cfg.applicationId);
+    }
     if (cfg.name !== undefined) inpName.value = cfg.name;
     if (cfg.type !== undefined) selType.value = cfg.type;
     if (cfg.display !== undefined) selDisplay.value = cfg.display;
