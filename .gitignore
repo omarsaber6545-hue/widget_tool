@@ -1,5 +1,7 @@
 node_modules/
 data/presence-state.json
+data/sessions.json
+data/users/
 npm-debug.log
 .DS_Store
 .env

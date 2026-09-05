@@ -36,6 +36,56 @@
       <button id="btnToggleLogs" class="nav-action-btn" title="Toggle Live Console Logs">
         <span class="btn-sym">💻</span> Live Logs
       </button>
+
+      <!-- Real Discord User Account Widget -->
+      <div class="user-account-widget" id="userAccountWidget">
+        <!-- Logged Out Button -->
+        <button id="btnOpenDiscordLogin" class="discord-login-btn">
+          <svg class="discord-logo-icon" viewBox="0 0 127.14 96.36" width="18" height="14">
+            <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+          </svg>
+          <span>تسجيل الدخول</span>
+        </button>
+
+        <!-- Logged In User Pill -->
+        <div id="userProfilePill" class="user-profile-pill" style="display: none;">
+          <div class="user-avatar-wrap">
+            <img id="navUserAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar" class="nav-user-avatar">
+            <span class="online-dot"></span>
+          </div>
+          <div class="nav-user-info">
+            <span id="navUserDisplayName" class="nav-user-name">Darkツ</span>
+            <span id="navUserTag" class="nav-user-tag">@rip_luufy25100</span>
+          </div>
+          <span class="dropdown-chevron">▾</span>
+
+          <!-- Dropdown Menu -->
+          <div id="userProfileDropdown" class="user-profile-dropdown">
+            <div class="dropdown-header">
+              <img id="dropdownAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="dropdown-avatar">
+              <div class="dropdown-names">
+                <span id="dropdownDisplayName" class="dropdown-display-name">Darkツ</span>
+                <span id="dropdownUsername" class="dropdown-username">@rip_luufy25100</span>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" id="btnCopyUserId">
+              <span class="drop-icon">🆔</span>
+              <span>نسخ الـ User ID</span>
+              <span id="badgeUserId" class="badge-mini">Copy</span>
+            </div>
+            <div class="dropdown-item" id="btnOpenAccountDetails">
+              <span class="drop-icon">🛡️</span>
+              <span>تفاصيل البروفايل</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item danger" id="btnLogout">
+              <span class="drop-icon">🚪</span>
+              <span>تسجيل الخروج (Logout)</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -475,6 +525,82 @@
       </div>
       <div class="modal-footer">
         <button id="btnSaveTimeSettings" class="win-button btn-connect">Apply Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Discord Login Modal (تسجيل دخول حقيقي بديسكورد) -->
+  <div class="win-modal-backdrop" id="discordLoginModal">
+    <div class="win-modal-card discord-auth-card">
+      <div class="win-modal-header discord-auth-header">
+        <div class="discord-header-title">
+          <svg class="discord-logo-icon" viewBox="0 0 127.14 96.36" width="22" height="18">
+            <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+          </svg>
+          <span>تسجيل الدخول بحساب ديسكورد الرسمي</span>
+        </div>
+        <button class="win-modal-close" id="btnCloseDiscordLoginModal">✕</button>
+      </div>
+      <div class="win-modal-body">
+        <p class="modal-sub">قم بربط حسابك لحفظ بروفايلك وإعدادات التواجد (CustomRP) الخاصة بك دائماً على السحابة.</p>
+        
+        <div class="setting-block">
+          <label class="field-label" for="loginTokenInput">رمز الحساب (Discord User Token):</label>
+          <input type="password" id="loginTokenInput" class="win-input full-width" placeholder="الصق رمز التوكن هنا..." autocomplete="off">
+          <p class="field-hint">يتم فحص التوكن مباشرة مع خوادم ديسكورد الرسمية والتأكد من هويتك وتنزيل صورتك الشخصية واسمك.</p>
+        </div>
+
+        <div id="loginStatusFeedback" class="login-feedback" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelDiscordLogin" class="win-button">إلغاء</button>
+        <button id="btnSubmitDiscordLogin" class="win-button btn-discord-primary">
+          <span>تسجيل الدخول الآن 🚀</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: User Account Profile Details (تفاصيل بروفايل ديسكورد) -->
+  <div class="win-modal-backdrop" id="accountDetailsModal">
+    <div class="win-modal-card discord-profile-modal">
+      <div class="profile-modal-banner" id="modalProfileBanner">
+        <button class="win-modal-close profile-close-btn" id="btnCloseAccountDetailsModal">✕</button>
+      </div>
+      <div class="profile-modal-content">
+        <div class="profile-modal-avatar-row">
+          <div class="profile-modal-avatar-wrap">
+            <img id="modalProfileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="profile-modal-avatar" alt="Avatar">
+            <span class="modal-online-badge"></span>
+          </div>
+          <div class="profile-modal-badges" id="modalProfileBadges"></div>
+        </div>
+
+        <div class="profile-modal-names">
+          <h2 id="modalProfileDisplayName" class="profile-title">Darkツ</h2>
+          <span id="modalProfileUsername" class="profile-tag">@rip_luufy25100</span>
+        </div>
+
+        <div class="profile-info-box">
+          <div class="profile-info-row">
+            <span class="info-k">User ID:</span>
+            <span class="info-v" id="modalProfileUserId">1512205578015871048</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="info-k">حالة الحساب:</span>
+            <span class="info-v text-success" id="modalProfileStatus">موثق ومتصل (Authenticated)</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="info-k">التطبيق النشط:</span>
+            <span class="info-v" id="modalProfileActiveApp">Horizon Services</span>
+          </div>
+        </div>
+
+        <div class="profile-actions-row">
+          <button id="btnModalLogout" class="win-button btn-danger full-width">
+            <span>🚪 تسجيل الخروج من هذا الحساب</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

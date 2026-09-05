@@ -1046,3 +1046,358 @@ body {
 .win-toast.error {
   border-color: #e74c3c;
 }
+
+/* --- Discord Real Authentication & User Profile Styling --- */
+.user-account-widget {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.discord-login-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #5865F2;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(88, 101, 242, 0.4);
+  transition: all 0.2s ease;
+}
+
+.discord-login-btn:hover {
+  background: #4752c4;
+  transform: translateY(-1px);
+}
+
+.user-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(43, 45, 49, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px 4px 6px;
+  border-radius: 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.user-profile-pill:hover {
+  background: rgba(53, 55, 60, 1);
+  border-color: #5865F2;
+}
+
+.user-avatar-wrap {
+  position: relative;
+  width: 28px;
+  height: 28px;
+}
+
+.nav-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 9px;
+  height: 9px;
+  background: #23a55a;
+  border: 2px solid #1e1f22;
+  border-radius: 50%;
+}
+
+.nav-user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.nav-user-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f2f3f5;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-user-tag {
+  font-size: 10px;
+  color: #949ba4;
+}
+
+.dropdown-chevron {
+  font-size: 10px;
+  color: #b5bac1;
+  margin-left: 2px;
+}
+
+.user-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 240px;
+  background: #111214;
+  border: 1px solid #313338;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  z-index: 1500;
+  animation: fadeInPop 0.15s ease-out forwards;
+}
+
+.user-profile-dropdown.open {
+  display: flex;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+}
+
+.dropdown-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.dropdown-names {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dropdown-display-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-username {
+  font-size: 11px;
+  color: #949ba4;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #2b2d31;
+  margin: 6px 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #dbdee1;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: #2b2d31;
+  color: #fff;
+}
+
+.dropdown-item.danger {
+  color: #f23f43;
+}
+
+.dropdown-item.danger:hover {
+  background: rgba(242, 63, 67, 0.15);
+  color: #f23f43;
+}
+
+.badge-mini {
+  margin-left: auto;
+  font-size: 10px;
+  background: #2b2d31;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #949ba4;
+}
+
+/* Discord Auth Modal */
+.discord-auth-card {
+  max-width: 460px;
+  border-top: 3px solid #5865F2;
+}
+
+.discord-auth-header {
+  background: #2b2d31;
+}
+
+.discord-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #fff;
+  font-size: 14px;
+}
+
+.btn-discord-primary {
+  background: #5865F2;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-discord-primary:hover {
+  background: #4752c4;
+}
+
+.login-feedback {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.login-feedback.error {
+  background: rgba(242, 63, 67, 0.15);
+  border: 1px solid #f23f43;
+  color: #f23f43;
+}
+
+/* Discord Profile Modal */
+.discord-profile-modal {
+  padding: 0;
+  overflow: hidden;
+  max-width: 360px;
+  border-radius: 12px;
+  background: #111214;
+}
+
+.profile-modal-banner {
+  height: 90px;
+  background: linear-gradient(135deg, #5865F2, #2b2d31);
+  position: relative;
+}
+
+.profile-close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.profile-modal-content {
+  padding: 0 16px 16px;
+  position: relative;
+}
+
+.profile-modal-avatar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: -45px;
+  margin-bottom: 12px;
+}
+
+.profile-modal-avatar-wrap {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 5px solid #111214;
+  background: #111214;
+}
+
+.profile-modal-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.modal-online-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background: #23a55a;
+  border: 3px solid #111214;
+  border-radius: 50%;
+}
+
+.profile-modal-names {
+  margin-bottom: 14px;
+}
+
+.profile-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #f2f3f5;
+  margin: 0;
+}
+
+.profile-tag {
+  font-size: 12px;
+  color: #b5bac1;
+}
+
+.profile-info-box {
+  background: #1e1f22;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.info-k {
+  color: #949ba4;
+}
+
+.info-v {
+  color: #f2f3f5;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.text-success {
+  color: #23a55a !important;
+}

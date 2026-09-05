@@ -849,13 +849,237 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  // --- REAL DISCORD AUTHENTICATION & USER MANAGEMENT ---
+  let currentUser = null;
+  let sessionToken = localStorage.getItem('customrp_session_token') || null;
+
+  const btnOpenDiscordLogin = document.getElementById('btnOpenDiscordLogin');
+  const discordLoginModal = document.getElementById('discordLoginModal');
+  const btnCloseDiscordLoginModal = document.getElementById('btnCloseDiscordLoginModal');
+  const btnCancelDiscordLogin = document.getElementById('btnCancelDiscordLogin');
+  const btnSubmitDiscordLogin = document.getElementById('btnSubmitDiscordLogin');
+  const loginTokenInput = document.getElementById('loginTokenInput');
+  const loginStatusFeedback = document.getElementById('loginStatusFeedback');
+
+  const userProfilePill = document.getElementById('userProfilePill');
+  const navUserAvatar = document.getElementById('navUserAvatar');
+  const navUserDisplayName = document.getElementById('navUserDisplayName');
+  const navUserTag = document.getElementById('navUserTag');
+  const userProfileDropdown = document.getElementById('userProfileDropdown');
+  const dropdownAvatar = document.getElementById('dropdownAvatar');
+  const dropdownDisplayName = document.getElementById('dropdownDisplayName');
+  const dropdownUsername = document.getElementById('dropdownUsername');
+  const btnCopyUserId = document.getElementById('btnCopyUserId');
+  const btnOpenAccountDetails = document.getElementById('btnOpenAccountDetails');
+  const btnLogout = document.getElementById('btnLogout');
+
+  const accountDetailsModal = document.getElementById('accountDetailsModal');
+  const btnCloseAccountDetailsModal = document.getElementById('btnCloseAccountDetailsModal');
+  const modalProfileAvatar = document.getElementById('modalProfileAvatar');
+  const modalProfileDisplayName = document.getElementById('modalProfileDisplayName');
+  const modalProfileUsername = document.getElementById('modalProfileUsername');
+  const modalProfileUserId = document.getElementById('modalProfileUserId');
+  const modalProfileActiveApp = document.getElementById('modalProfileActiveApp');
+  const btnModalLogout = document.getElementById('btnModalLogout');
+
+  // Helper for authenticated API calls
+  function getAuthHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    if (sessionToken) {
+      headers['Authorization'] = `Bearer ${sessionToken}`;
+    }
+    return headers;
+  }
+
+  // Update UI for Logged-In User
+  function setLoggedInUser(user) {
+    currentUser = user;
+    if (btnOpenDiscordLogin) btnOpenDiscordLogin.style.display = 'none';
+    if (userProfilePill) userProfilePill.style.display = 'flex';
+
+    if (navUserAvatar) navUserAvatar.src = user.avatar;
+    if (navUserDisplayName) navUserDisplayName.textContent = user.displayName || user.username;
+    if (navUserTag) navUserTag.textContent = user.discriminator ? `@${user.username}#${user.discriminator}` : `@${user.username}`;
+
+    if (dropdownAvatar) dropdownAvatar.src = user.avatar;
+    if (dropdownDisplayName) dropdownDisplayName.textContent = user.displayName || user.username;
+    if (dropdownUsername) dropdownUsername.textContent = `@${user.username}`;
+
+    if (modalProfileAvatar) modalProfileAvatar.src = user.avatar;
+    if (modalProfileDisplayName) modalProfileDisplayName.textContent = user.displayName || user.username;
+    if (modalProfileUsername) modalProfileUsername.textContent = `@${user.username}`;
+    if (modalProfileUserId) modalProfileUserId.textContent = user.id;
+    if (modalProfileActiveApp) modalProfileActiveApp.textContent = inpName.value.trim() || 'Horizon Services';
+
+    // Also sync Discord preview card with real user avatar and name!
+    cardAvatar.src = user.avatar;
+    cardDisplayName.textContent = user.displayName || user.username;
+    cardUsername.textContent = `@${user.username}`;
+  }
+
+  // Update UI for Logged-Out State
+  function setLoggedOutUser() {
+    currentUser = null;
+    sessionToken = null;
+    localStorage.removeItem('customrp_session_token');
+    if (btnOpenDiscordLogin) btnOpenDiscordLogin.style.display = 'flex';
+    if (userProfilePill) userProfilePill.style.display = 'none';
+    if (userProfileDropdown) userProfileDropdown.classList.remove('open');
+  }
+
+  // Check Current Session with Backend
+  async function checkAuthSession() {
+    if (!sessionToken) return false;
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: getAuthHeaders()
+      });
+      const data = await res.json();
+      if (data.success && data.authenticated && data.user) {
+        setLoggedInUser(data.user);
+        if (data.config) {
+          populateFormFromState(data.config);
+        }
+        return true;
+      } else {
+        setLoggedOutUser();
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // Event Listeners for Login & Profile
+  if (btnOpenDiscordLogin) {
+    btnOpenDiscordLogin.addEventListener('click', () => {
+      loginStatusFeedback.style.display = 'none';
+      if (inpToken.value.trim()) {
+        loginTokenInput.value = inpToken.value.trim();
+      }
+      discordLoginModal.classList.add('open');
+    });
+  }
+
+  if (btnCloseDiscordLoginModal) {
+    btnCloseDiscordLoginModal.addEventListener('click', () => discordLoginModal.classList.remove('open'));
+  }
+  if (btnCancelDiscordLogin) {
+    btnCancelDiscordLogin.addEventListener('click', () => discordLoginModal.classList.remove('open'));
+  }
+
+  // Submit Login
+  if (btnSubmitDiscordLogin) {
+    btnSubmitDiscordLogin.addEventListener('click', async () => {
+      const token = loginTokenInput.value.trim();
+      if (!token) {
+        loginStatusFeedback.className = 'login-feedback error';
+        loginStatusFeedback.textContent = 'يرجى إدخال رمز الحساب (Token)';
+        loginStatusFeedback.style.display = 'block';
+        return;
+      }
+
+      btnSubmitDiscordLogin.disabled = true;
+      btnSubmitDiscordLogin.innerHTML = '<span>جاري التحقق من ديسكورد...</span>';
+      loginStatusFeedback.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          sessionToken = data.sessionToken;
+          localStorage.setItem('customrp_session_token', sessionToken);
+          setLoggedInUser(data.user);
+
+          if (data.config) {
+            populateFormFromState(data.config);
+          }
+          inpToken.value = token;
+
+          discordLoginModal.classList.remove('open');
+          showToast(`مرحباً بك يا ${data.user.displayName}! تم تسجيل الدخول وحفظ بياناتك بنجاح ✓`);
+        } else {
+          loginStatusFeedback.className = 'login-feedback error';
+          loginStatusFeedback.textContent = data.message || 'فشل تسجيل الدخول';
+          loginStatusFeedback.style.display = 'block';
+        }
+      } catch (err) {
+        loginStatusFeedback.className = 'login-feedback error';
+        loginStatusFeedback.textContent = 'خطأ في الاتصال بالسيرفر: ' + err.message;
+        loginStatusFeedback.style.display = 'block';
+      } finally {
+        btnSubmitDiscordLogin.disabled = false;
+        btnSubmitDiscordLogin.innerHTML = '<span>تسجيل الدخول الآن 🚀</span>';
+      }
+    });
+  }
+
+  // Profile Dropdown Toggle
+  if (userProfilePill) {
+    userProfilePill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userProfileDropdown.classList.toggle('open');
+    });
+  }
+
+  document.addEventListener('click', () => {
+    if (userProfileDropdown) userProfileDropdown.classList.remove('open');
+  });
+
+  // Copy User ID
+  if (btnCopyUserId) {
+    btnCopyUserId.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentUser && currentUser.id) {
+        navigator.clipboard.writeText(currentUser.id);
+        showToast(`تم نسخ معرف الحساب: ${currentUser.id} بنجاح! ✓`);
+        userProfileDropdown.classList.remove('open');
+      }
+    });
+  }
+
+  // Account Details Modal
+  if (btnOpenAccountDetails) {
+    btnOpenAccountDetails.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userProfileDropdown.classList.remove('open');
+      accountDetailsModal.classList.add('open');
+    });
+  }
+
+  if (btnCloseAccountDetailsModal) {
+    btnCloseAccountDetailsModal.addEventListener('click', () => accountDetailsModal.classList.remove('open'));
+  }
+
+  // Logout
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+    } catch (e) {}
+    setLoggedOutUser();
+    if (accountDetailsModal) accountDetailsModal.classList.remove('open');
+    showToast('تم تسجيل الخروج بنجاح.');
+  };
+
+  if (btnLogout) btnLogout.addEventListener('click', handleLogout);
+  if (btnModalLogout) btnModalLogout.addEventListener('click', handleLogout);
+
   // 10. Initial Fetch
   async function init() {
     try {
+      await checkAuthSession();
       const res = await fetch('/api/status');
       const data = await res.json();
       if (data.success) {
-        populateFormFromState(data.state.config);
+        if (!currentUser) {
+          populateFormFromState(data.state.config);
+        }
         applyStatus(data.state, data.userInfo);
         if (data.state.config && data.state.config.applicationId) {
           fetchApplicationAssets(data.state.config.applicationId);

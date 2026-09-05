@@ -4,6 +4,7 @@ const path = require('path');
 const stateManager = require('./state-manager');
 const discordGateway = require('./discord-gateway');
 const presetManager = require('./preset-manager');
+const userManager = require('./user-manager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +12,14 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.text({ type: ['text/xml', 'application/xml'], limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// مساعدة للحصول على جلسة المستخدم الحالي
+function getSessionFromReq(req) {
+  const authHeader = req.headers['authorization'] || req.headers['x-session-token'] || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  return userManager.getSessionUser(token);
+}
 
 // قائمة مشتركي البث الحي للسجلات (SSE)
 const logSubscribers = new Set();
@@ -39,6 +48,47 @@ stateManager.onChange((state) => {
 });
 
 // --- API Endpoints ---
+
+// 0. مسارات تسجيل الدخول والمصادقة الحقيقية (Real Discord Auth)
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ success: false, message: 'يرجى إدخال رمز حساب ديسكورد (Token)' });
+    }
+
+    const result = await userManager.loginWithToken(token);
+    stateManager.updateConfig(result.config);
+    discordGateway.log('success', `تم تسجيل دخول المستخدم بنجاح: ${result.user.displayName} (@${result.user.username})`);
+    res.json(result);
+  } catch (err) {
+    res.status(401).json({ success: false, message: err.message });
+  }
+});
+
+app.get('/api/auth/me', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (session) {
+    return res.json({
+      success: true,
+      authenticated: true,
+      user: session.user,
+      config: session.config
+    });
+  }
+  res.json({
+    success: true,
+    authenticated: false,
+    user: null
+  });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  const authHeader = req.headers['authorization'] || req.headers['x-session-token'] || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  userManager.logout(token);
+  res.json({ success: true, message: 'تم تسجيل الخروج بنجاح' });
+});
 
 // 1. فحص الحالة الشاملة
 app.get('/api/status', (req, res) => {
@@ -87,6 +137,10 @@ app.post('/api/config', async (req, res) => {
   }
 
   stateManager.updateConfig(newConfig);
+  const session = getSessionFromReq(req);
+  if (session && session.user) {
+    userManager.updateUserConfig(session.user.id, newConfig);
+  }
   discordGateway.log('info', 'تم حفظ وتحديث إعدادات التواجد بنجاح');
 
   // إرسال تحديث النشاط فوراً إلى ديسكورد إذا كان متصلاً، أو بدء الاتصال إذا كان متوقفاً
