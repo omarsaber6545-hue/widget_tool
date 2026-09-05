@@ -905,11 +905,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopyConsoleCode = document.getElementById('btnCopyConsoleCode');
   const portalConsoleSnippet = document.getElementById('portalConsoleSnippet');
 
-  const btnOpen247CloudGuide = document.getElementById('btnOpen247CloudGuide');
-  const cloudGuideModal = document.getElementById('cloudGuideModal');
-  const btnCloseCloudGuideModal = document.getElementById('btnCloseCloudGuideModal');
-  const btnCloseCloudGuideFooter = document.getElementById('btnCloseCloudGuideFooter');
-
   const userProfilePill = document.getElementById('userProfilePill');
   const navUserAvatar = document.getElementById('navUserAvatar');
   const navUserDisplayName = document.getElementById('navUserDisplayName');
@@ -919,17 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropdownDisplayName = document.getElementById('dropdownDisplayName');
   const dropdownUsername = document.getElementById('dropdownUsername');
   const btnCopyUserId = document.getElementById('btnCopyUserId');
-  const btnOpenAccountDetails = document.getElementById('btnOpenAccountDetails');
   const btnLogout = document.getElementById('btnLogout');
-
-  const accountDetailsModal = document.getElementById('accountDetailsModal');
-  const btnCloseAccountDetailsModal = document.getElementById('btnCloseAccountDetailsModal');
-  const modalProfileAvatar = document.getElementById('modalProfileAvatar');
-  const modalProfileDisplayName = document.getElementById('modalProfileDisplayName');
-  const modalProfileUsername = document.getElementById('modalProfileUsername');
-  const modalProfileUserId = document.getElementById('modalProfileUserId');
-  const modalProfileActiveApp = document.getElementById('modalProfileActiveApp');
-  const btnModalLogout = document.getElementById('btnModalLogout');
 
   // Helpers to switch screens
   function showDashboard(user) {
@@ -1128,17 +1113,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 24/7 Cloud Guide Modal Listeners
-  if (btnOpen247CloudGuide && cloudGuideModal) {
-    btnOpen247CloudGuide.addEventListener('click', () => cloudGuideModal.classList.add('open'));
-  }
-  if (btnCloseCloudGuideModal && cloudGuideModal) {
-    btnCloseCloudGuideModal.addEventListener('click', () => cloudGuideModal.classList.remove('open'));
-  }
-  if (btnCloseCloudGuideFooter && cloudGuideModal) {
-    btnCloseCloudGuideFooter.addEventListener('click', () => cloudGuideModal.classList.remove('open'));
-  }
-
   // Profile Dropdown Toggle
   if (userProfilePill) {
     userProfilePill.addEventListener('click', (e) => {
@@ -1163,19 +1137,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Account Details Modal
-  if (btnOpenAccountDetails) {
-    btnOpenAccountDetails.addEventListener('click', (e) => {
-      e.stopPropagation();
-      userProfileDropdown.classList.remove('open');
-      accountDetailsModal.classList.add('open');
-    });
-  }
-
-  if (btnCloseAccountDetailsModal) {
-    btnCloseAccountDetailsModal.addEventListener('click', () => accountDetailsModal.classList.remove('open'));
-  }
-
   // Logout - Clear device persistence and return to Login Gate
   const handleLogout = async () => {
     try {
@@ -1189,7 +1150,6 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('customrp_session_token');
     localStorage.removeItem('customrp_token');
     localStorage.removeItem('customrp_user_profile');
-    if (accountDetailsModal) accountDetailsModal.classList.remove('open');
     if (userProfileDropdown) userProfileDropdown.classList.remove('open');
     
     showLoginGate();

@@ -92,9 +92,6 @@
       <button id="btnOpenTimeRecoveryModal" class="nav-action-btn">
         <span class="btn-sym">⏳</span> 24/7 Auto-Restart & Time
       </button>
-      <button id="btnOpen247CloudGuide" class="nav-action-btn cloud-guide-btn" title="كيف تشغل حسابك 24 ساعة أونلاين حتى والكمبيوتر والموبايل مقفولين">
-        <span class="btn-sym">☁️</span> تشغيل 24/7 سحابي مجاني
-      </button>
       <button id="btnTogglePreview" class="nav-action-btn active" title="Toggle Discord Profile Live Preview">
         <span class="btn-sym">👁️</span> Live Discord Card
       </button>
@@ -138,10 +135,6 @@
               <span class="drop-icon">🆔</span>
               <span>نسخ الـ User ID</span>
               <span id="badgeUserId" class="badge-mini">Copy</span>
-            </div>
-            <div class="dropdown-item" id="btnOpenAccountDetails">
-              <span class="drop-icon">🛡️</span>
-              <span>تفاصيل البروفايل</span>
             </div>
             <div class="dropdown-divider"></div>
             <div class="dropdown-item danger" id="btnLogout">
@@ -595,79 +588,6 @@
   </div>
 
 
-  <!-- Modal: 24/7 Cloud Free Hosting Guide (دليل التشغيل 24 ساعة بالسحابة مجاناً) -->
-  <div class="win-modal-backdrop" id="cloudGuideModal">
-    <div class="win-modal-card" style="max-width: 580px;">
-      <div class="win-modal-header">
-        <div class="modal-title-wrap">
-          <span>☁️ تشغيل حسابك 24/7 أونلاين حتى والـ PC مقفول (مجاناً)</span>
-        </div>
-        <button class="win-modal-close" id="btnCloseCloudGuideModal">✕</button>
-      </div>
-      <div class="win-modal-body" style="font-size: 12px; line-height: 1.6; color: #dcddde;">
-        <div style="background: rgba(240, 178, 50, 0.15); border: 1px solid rgba(240, 178, 50, 0.4); padding: 10px; border-radius: 6px; margin-bottom: 14px;">
-          <strong style="color: #f0b232;">⚠️ معلومة مهمة جداً عن Vercel:</strong>
-          <p style="margin: 4px 0 0 0;">موقع Vercel الحالي يعمل بنظام Serverless، ويتوقف تلقائياً بعد ثوانٍ من إغلاق المتصفح. لكي يفضل حسابك أونلاين 24 ساعة متواصلة حتى وأنت قافل الكمبيوتر والموبايل والراوتر، تحتاج تشغيله كخادم دائم على <strong>Render.com</strong> (مجاني 100% ولا يحتاج فيزا).</p>
-        </div>
-
-        <h4 style="color: #fff; margin: 0 0 8px 0;">🚀 خطوات التشغيل في دقيقتين فقط:</h4>
-        <ol style="margin: 0 0 14px 20px; padding: 0;">
-          <li>ادخل على موقع <a href="https://render.com" target="_blank" style="color: #5865f2; text-decoration: underline; font-weight: bold;">Render.com</a> واضغط <strong>Sign In with GitHub</strong>.</li>
-          <li>اضغط على زر <strong>New +</strong> في الأعلى واختر <strong>Web Service</strong>.</li>
-          <li>اختر مستودعك من القائمة: <strong>widget_tool</strong>.</li>
-          <li>اترك الإعدادات كما هي واضغط <strong>Deploy Web Service</strong> في أسفل الصفحة.</li>
-        </ol>
-
-        <p style="margin: 0; color: #57f287; font-weight: bold;">✓ بمجرد اكتمال البناء، سيظل حسابك متصلاً بديسكورد 24/7 بدون الحاجة لفتح أي جهاز نهائياً!</p>
-      </div>
-      <div class="modal-footer">
-        <button id="btnCloseCloudGuideFooter" class="win-button btn-discord-primary">فهمت ذلك، حسناً ✓</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: User Account Profile Details (تفاصيل بروفايل ديسكورد) -->
-  <div class="win-modal-backdrop" id="accountDetailsModal">
-    <div class="win-modal-card discord-profile-modal">
-      <div class="profile-modal-banner" id="modalProfileBanner">
-        <button class="win-modal-close profile-close-btn" id="btnCloseAccountDetailsModal">✕</button>
-      </div>
-      <div class="profile-modal-content">
-        <div class="profile-modal-avatar-row">
-          <div class="profile-modal-avatar-wrap">
-            <img id="modalProfileAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="profile-modal-avatar" alt="Avatar">
-            <span class="modal-online-badge"></span>
-          </div>
-          <div class="profile-modal-badges" id="modalProfileBadges"></div>
-        </div>
-
-        <div class="profile-modal-names">
-          <h2 id="modalProfileDisplayName" class="profile-title">Darkツ</h2>
-          <span id="modalProfileUsername" class="profile-tag">@rip_luufy25100</span>
-        </div>
-
-        <div class="profile-info-box">
-          <div class="profile-info-row">
-            <span class="info-k">User ID:</span>
-            <span class="info-v" id="modalProfileUserId">1512205578015871048</span>
-          </div>
-          <div class="profile-info-row">
-            <span class="info-k">حالة الحساب:</span>
-            <span class="info-v text-success" id="modalProfileStatus">موثق ومتصل (Authenticated)</span>
-          </div>
-          <div class="profile-info-row">
-            <span class="info-k">التطبيق النشط:</span>
-            <span class="info-v" id="modalProfileActiveApp">Horizon Services</span>
-          </div>
-        </div>
-
-        <div class="profile-actions-row">
-          <button id="btnModalLogout" class="win-button btn-danger full-width">
-            <span>🚪 تسجيل الخروج من هذا الحساب</span>
-          </button>
-        </div>
-      </div>
-    </div>
   </div><!-- end #mainAppLayout -->
 
   <!-- Hidden File Input for CRP Presets -->
