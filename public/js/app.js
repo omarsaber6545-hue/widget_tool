@@ -945,12 +945,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dropdownDisplayName) dropdownDisplayName.textContent = user.displayName || user.username;
     if (dropdownUsername) dropdownUsername.textContent = `@${user.username}`;
 
-    if (modalProfileAvatar) modalProfileAvatar.src = user.avatar;
-    if (modalProfileDisplayName) modalProfileDisplayName.textContent = user.displayName || user.username;
-    if (modalProfileUsername) modalProfileUsername.textContent = `@${user.username}`;
-    if (modalProfileUserId) modalProfileUserId.textContent = user.id;
-    if (modalProfileActiveApp) modalProfileActiveApp.textContent = inpName.value.trim() || 'Horizon Services';
-
     // Also sync Discord preview card with real user avatar and name!
     cardAvatar.src = user.avatar;
     cardDisplayName.textContent = user.displayName || user.username;
