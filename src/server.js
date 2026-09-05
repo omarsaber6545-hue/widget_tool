@@ -52,14 +52,20 @@ stateManager.onChange((state) => {
 // 0. مسارات تسجيل الدخول والمصادقة الحقيقية (Real Discord Auth)
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token, currentConfig } = req.body;
     if (!token || typeof token !== 'string') {
       return res.status(400).json({ success: false, message: 'يرجى إدخال رمز حساب ديسكورد (Token)' });
     }
 
-    const result = await userManager.loginWithToken(token);
+    const result = await userManager.loginWithToken(token, currentConfig);
     stateManager.updateConfig(result.config);
     discordGateway.log('success', `تم تسجيل دخول المستخدم بنجاح: ${result.user.displayName} (@${result.user.username})`);
+    
+    // تشغيل الاتصال تلقائياً عند تسجيل الدخول
+    if (stateManager.getState().status !== 'running') {
+      discordGateway.start();
+    }
+
     res.json(result);
   } catch (err) {
     res.status(401).json({ success: false, message: err.message });

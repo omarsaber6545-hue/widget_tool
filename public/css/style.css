@@ -1401,3 +1401,53 @@ body {
 .text-success {
   color: #23a55a !important;
 }
+
+/* Helper Button Styles */
+.btn-copy-mini {
+  background: #2b2d31;
+  color: #dbdee1;
+  border: 1px solid #3f4147;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-copy-mini:hover {
+  background: #35373c;
+  color: #fff;
+  border-color: #5865f2;
+}
+
+.cloud-guide-btn {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.2), rgba(35, 165, 90, 0.2)) !important;
+  border: 1px solid rgba(88, 101, 242, 0.4) !important;
+  color: #57f287 !important;
+  font-weight: 600;
+}
+
+.cloud-guide-btn:hover {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.35), rgba(35, 165, 90, 0.35)) !important;
+  border-color: #57f287 !important;
+}
+
+.btn-primary-action {
+  background: linear-gradient(135deg, #5865f2, #4752c4) !important;
+  color: #fff !important;
+  border-color: #5865f2 !important;
+  font-weight: bold !important;
+  padding: 6px 18px !important;
+  box-shadow: 0 2px 8px rgba(88, 101, 242, 0.35);
+  transition: transform 0.1s, box-shadow 0.2s !important;
+}
+
+.btn-primary-action:hover {
+  background: linear-gradient(135deg, #4752c4, #3c45a5) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.5);
+}
+
+.btn-primary-action:active {
+  transform: translateY(1px);
+}

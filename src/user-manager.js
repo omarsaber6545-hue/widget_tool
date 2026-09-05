@@ -78,7 +78,8 @@ class UserManager {
     if (!token || typeof token !== 'string') {
       throw new Error('رمز الحساب (Token) غير صالح أو فارغ');
     }
-    const cleanToken = token.trim();
+    // تنظيف التوكن من المسافات، علامات التنصيص الفردية أو المزدوجة، وبادئة Bot
+    const cleanToken = token.trim().replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
 
     const res = await fetch('https://discord.com/api/v9/users/@me', {
       headers: {
@@ -89,7 +90,7 @@ class UserManager {
 
     if (!res.ok) {
       if (res.status === 401) {
-        throw new Error('رمز الحساب (Token) غير صحيح أو منتهي الصلاحية');
+        throw new Error('رمز الحساب (Token) غير صحيح أو منتهي الصلاحية. يرجى التأكد من نسخه بدقة');
       }
       throw new Error(`فشل الاتصال بديسكورد (كود الخطأ: ${res.status})`);
     }
@@ -134,41 +135,42 @@ class UserManager {
   /**
    * تسجيل دخول حقيقي للمستخدم، وحفظ بياناته، وإصدار جلسة دائمة
    */
-  async loginWithToken(token) {
+  async loginWithToken(token, currentConfig = null) {
     const profile = await this.verifyDiscordToken(token);
     const userId = profile.id;
+    const cleanToken = token.trim().replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
 
-    // استرجاع الإعدادات المحفوظة لهذا المستخدم أو إنشاء افتراضية
+    // استرجاع الإعدادات المحفوظة لهذا المستخدم أو إنشاء إعدادات جديدة بالاعتماد على ما أدخله المستخدم في الفورم
     let userRecord = this.getUser(userId);
     if (!userRecord) {
       userRecord = {
         profile,
         config: {
-          token: token.trim(),
-          applicationId: '1545546198675624016',
-          name: 'Horizon Services',
-          type: 0,
-          display: 0,
-          details: 'dev server',
-          detailsUrl: '',
-          state: 'codeing',
-          stateUrl: '',
-          partySize: 2,
-          partyMax: 5,
-          timestampType: 4,
-          customTimestampStart: '2026-09-03T02:13',
-          customTimestampEndEnabled: false,
-          customTimestampEnd: '',
-          largeKey: 'hz',
-          largeText: 'Horizon Services',
-          largeUrl: '',
-          smallKey: 'hz',
-          smallText: 'Online',
-          smallUrl: '',
-          button1Text: '',
-          button1Url: '',
-          button2Text: '',
-          button2Url: ''
+          token: cleanToken,
+          applicationId: currentConfig?.applicationId || '1545546198675624016',
+          name: currentConfig?.name || '',
+          type: currentConfig?.type !== undefined ? currentConfig.type : 0,
+          display: currentConfig?.display !== undefined ? currentConfig.display : 0,
+          details: currentConfig?.details || '',
+          detailsUrl: currentConfig?.detailsUrl || '',
+          state: currentConfig?.state || '',
+          stateUrl: currentConfig?.stateUrl || '',
+          partySize: currentConfig?.partySize !== undefined ? currentConfig.partySize : 1,
+          partyMax: currentConfig?.partyMax !== undefined ? currentConfig.partyMax : 1,
+          timestampType: currentConfig?.timestampType !== undefined ? currentConfig.timestampType : 0,
+          customTimestampStart: currentConfig?.customTimestampStart || '',
+          customTimestampEndEnabled: !!currentConfig?.customTimestampEndEnabled,
+          customTimestampEnd: currentConfig?.customTimestampEnd || '',
+          largeKey: currentConfig?.largeKey || '',
+          largeText: currentConfig?.largeText || '',
+          largeUrl: currentConfig?.largeUrl || '',
+          smallKey: currentConfig?.smallKey || '',
+          smallText: currentConfig?.smallText || '',
+          smallUrl: currentConfig?.smallUrl || '',
+          button1Text: currentConfig?.button1Text || '',
+          button1Url: currentConfig?.button1Url || '',
+          button2Text: currentConfig?.button2Text || '',
+          button2Url: currentConfig?.button2Url || ''
         },
         createdAt: new Date().toISOString()
       };
@@ -178,7 +180,14 @@ class UserManager {
         ...userRecord.profile,
         ...profile
       };
-      userRecord.config.token = token.trim();
+      // إذا قام المستخدم بتعديل بيانات على الشاشة قبل تسجيل الدخول، نحفظها له ولا نمسحها
+      if (currentConfig && Object.keys(currentConfig).length > 0) {
+        userRecord.config = {
+          ...userRecord.config,
+          ...currentConfig
+        };
+      }
+      userRecord.config.token = cleanToken;
     }
 
     this.saveUser(userId, userRecord);

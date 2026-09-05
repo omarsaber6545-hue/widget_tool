@@ -30,6 +30,9 @@
       <button id="btnOpenTimeRecoveryModal" class="nav-action-btn">
         <span class="btn-sym">⏳</span> 24/7 Auto-Restart & Time
       </button>
+      <button id="btnOpen247CloudGuide" class="nav-action-btn cloud-guide-btn" title="كيف تشغل حسابك 24 ساعة أونلاين حتى والكمبيوتر والموبايل مقفولين">
+        <span class="btn-sym">☁️</span> تشغيل 24/7 سحابي مجاني
+      </button>
       <button id="btnTogglePreview" class="nav-action-btn active" title="Toggle Discord Profile Live Preview">
         <span class="btn-sym">👁️</span> Live Discord Card
       </button>
@@ -325,11 +328,11 @@
         <!-- Row 9: Actions Row -->
         <div class="win-actions-row">
           <div class="actions-left">
-            <button id="btnConnect" class="win-button btn-connect">Connect</button>
-            <button id="btnDisconnect" class="win-button btn-disconnect" disabled>Disconnect</button>
+            <button id="btnConnect" class="win-button btn-connect" title="بدء الاتصال بديسكورد وتفعيل التواجد">▶ تشغيل (Connect)</button>
+            <button id="btnDisconnect" class="win-button btn-disconnect" disabled title="إيقاف التواجد مؤقتاً">⏹ إيقاف (Disconnect)</button>
           </div>
           <div class="actions-right">
-            <button id="btnUpdatePresence" class="win-button btn-update">Update Presence</button>
+            <button id="btnUpdatePresence" class="win-button btn-update btn-primary-action" title="حفظ البيانات وتحديث النشاط على حسابك فوراً">🚀 حفظ وتحديث النشاط على ديسكورد فوراً</button>
           </div>
         </div>
       </div>
@@ -542,21 +545,63 @@
         <button class="win-modal-close" id="btnCloseDiscordLoginModal">✕</button>
       </div>
       <div class="win-modal-body">
-        <p class="modal-sub">قم بربط حسابك لحفظ بروفايلك وإعدادات التواجد (CustomRP) الخاصة بك دائماً على السحابة.</p>
+        <p class="modal-sub">قم بربط حسابك لحفظ بروفايلك وإعدادات التواجد (CustomRP) الخاصة بك دائماً على السحابة وتحديثها فوراً.</p>
         
         <div class="setting-block">
-          <label class="field-label" for="loginTokenInput">رمز الحساب (Discord User Token):</label>
-          <input type="password" id="loginTokenInput" class="win-input full-width" placeholder="الصق رمز التوكن هنا..." autocomplete="off">
-          <p class="field-hint">يتم فحص التوكن مباشرة مع خوادم ديسكورد الرسمية والتأكد من هويتك وتنزيل صورتك الشخصية واسمك.</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="field-label" for="loginTokenInput" style="margin: 0;">رمز الحساب (Discord User Token):</label>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" id="btnPasteLoginToken" class="btn-copy-mini" title="لصق التوكن من الحافظة">📋 لصق</button>
+              <button type="button" id="btnToggleLoginTokenVisibility" class="btn-copy-mini" title="إظهار أو إخفاء التوكن">👁️ إظهار</button>
+            </div>
+          </div>
+          <input type="password" id="loginTokenInput" class="win-input full-width" placeholder="الصق رمز التوكن الخاص بحسابك هنا..." autocomplete="off">
+          <p class="field-hint">يتم فحص التوكن مباشرة مع خوادم ديسكورد الرسمية والتأكد من هويتك وتنزيل صورتك الشخصية واسمك وحفظ إعداداتك.</p>
         </div>
 
-        <div id="loginStatusFeedback" class="login-feedback" style="display: none;"></div>
+        <div class="login-why-box" style="margin-top: 10px; padding: 10px; background: rgba(88, 101, 242, 0.1); border: 1px solid rgba(88, 101, 242, 0.3); border-radius: 6px; font-size: 11px; line-height: 1.5; color: #dcddde;">
+          <strong style="color: #5865f2;">💡 لماذا يطلب الموقع رمز التوكن؟</strong>
+          <p style="margin: 4px 0 0 0;">لأن ديسكورد تمنع تشغيل الألعاب وحالة التواجد (Rich Presence) عبر زر الـ OAuth العادي. التوكن هو الطريقة الرسمية الوحيدة للاتصال بـ Discord Gateway وتحديث نشاطك 24 ساعة.</p>
+        </div>
+
+        <div id="loginStatusFeedback" class="login-feedback" style="display: none; margin-top: 10px;"></div>
       </div>
       <div class="modal-footer">
         <button id="btnCancelDiscordLogin" class="win-button">إلغاء</button>
         <button id="btnSubmitDiscordLogin" class="win-button btn-discord-primary">
-          <span>تسجيل الدخول الآن 🚀</span>
+          <span>تسجيل الدخول وحفظ البيانات 🚀</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 24/7 Cloud Free Hosting Guide (دليل التشغيل 24 ساعة بالسحابة مجاناً) -->
+  <div class="win-modal-backdrop" id="cloudGuideModal">
+    <div class="win-modal-card" style="max-width: 580px;">
+      <div class="win-modal-header">
+        <div class="modal-title-wrap">
+          <span>☁️ تشغيل حسابك 24/7 أونلاين حتى والـ PC مقفول (مجاناً)</span>
+        </div>
+        <button class="win-modal-close" id="btnCloseCloudGuideModal">✕</button>
+      </div>
+      <div class="win-modal-body" style="font-size: 12px; line-height: 1.6; color: #dcddde;">
+        <div style="background: rgba(240, 178, 50, 0.15); border: 1px solid rgba(240, 178, 50, 0.4); padding: 10px; border-radius: 6px; margin-bottom: 14px;">
+          <strong style="color: #f0b232;">⚠️ معلومة مهمة جداً عن Vercel:</strong>
+          <p style="margin: 4px 0 0 0;">موقع Vercel الحالي يعمل بنظام Serverless، ويتوقف تلقائياً بعد ثوانٍ من إغلاق المتصفح. لكي يفضل حسابك أونلاين 24 ساعة متواصلة حتى وأنت قافل الكمبيوتر والموبايل والراوتر، تحتاج تشغيله كخادم دائم على <strong>Render.com</strong> (مجاني 100% ولا يحتاج فيزا).</p>
+        </div>
+
+        <h4 style="color: #fff; margin: 0 0 8px 0;">🚀 خطوات التشغيل في دقيقتين فقط:</h4>
+        <ol style="margin: 0 0 14px 20px; padding: 0;">
+          <li>ادخل على موقع <a href="https://render.com" target="_blank" style="color: #5865f2; text-decoration: underline; font-weight: bold;">Render.com</a> واضغط <strong>Sign In with GitHub</strong>.</li>
+          <li>اضغط على زر <strong>New +</strong> في الأعلى واختر <strong>Web Service</strong>.</li>
+          <li>اختر مستودعك من القائمة: <strong>widget_tool</strong>.</li>
+          <li>اترك الإعدادات كما هي واضغط <strong>Deploy Web Service</strong> في أسفل الصفحة.</li>
+        </ol>
+
+        <p style="margin: 0; color: #57f287; font-weight: bold;">✓ بمجرد اكتمال البناء، سيظل حسابك متصلاً بديسكورد 24/7 بدون الحاجة لفتح أي جهاز نهائياً!</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCloseCloudGuideFooter" class="win-button btn-discord-primary">فهمت ذلك، حسناً ✓</button>
       </div>
     </div>
   </div>

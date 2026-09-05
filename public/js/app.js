@@ -43,6 +43,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const inpBtn2Text = document.getElementById('inpBtn2Text');
   const inpBtn2Url = document.getElementById('inpBtn2Url');
 
+  // Real Session & Authentication
+  let sessionToken = localStorage.getItem('customrp_session_token') || null;
+
+  function getAuthHeaders(extra = {}) {
+    const headers = { ...extra };
+    const tok = sessionToken || localStorage.getItem('customrp_session_token');
+    if (tok) {
+      headers['Authorization'] = `Bearer ${tok}`;
+      headers['x-session-token'] = tok;
+    }
+    return headers;
+  }
+
   // Actions
   const btnConnect = document.getElementById('btnConnect');
   const btnDisconnect = document.getElementById('btnDisconnect');
@@ -617,48 +630,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 6. Connect / Disconnect / Update Actions
   btnConnect.addEventListener('click', async () => {
-    // Save current config first
+    btnConnect.disabled = true;
+    btnConnect.innerHTML = '<span>جاري الاتصال... ⏳</span>';
     const config = buildConfigFromForm();
-    await fetch('/api/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config)
-    });
+    saveFormToLocalStorage();
 
-    const res = await fetch('/api/start', { method: 'POST' });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Connecting to Discord Gateway...');
-    } else {
-      showToast(data.message, true);
-      tokenModal.classList.add('open');
+    try {
+      await fetch('/api/config', {
+        method: 'POST',
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(config)
+      });
+
+      const res = await fetch('/api/start', { method: 'POST', headers: getAuthHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        showToast('جاري الاتصال بديسكورد وتفعيل التواجد...');
+      } else {
+        showToast(data.message, true);
+        tokenModal.classList.add('open');
+      }
+    } catch (e) {
+      showToast('خطأ في الاتصال: ' + e.message, true);
+    } finally {
+      btnConnect.disabled = false;
+      btnConnect.innerHTML = '<span>▶ تشغيل (Connect)</span>';
     }
   });
 
   btnDisconnect.addEventListener('click', async () => {
-    const res = await fetch('/api/stop', { method: 'POST' });
-    const data = await res.json();
-    if (data.success) {
-      showToast('Disconnected. Elapsed time saved safely.');
+    btnDisconnect.disabled = true;
+    try {
+      const res = await fetch('/api/stop', { method: 'POST', headers: getAuthHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        showToast('تم إيقاف الخدمة وحفظ الوقت المنقضي بنجاح.');
+      }
+    } catch (e) {
+      showToast('خطأ أثناء الإيقاف: ' + e.message, true);
+    } finally {
+      btnDisconnect.disabled = false;
     }
   });
 
   btnUpdatePresence.addEventListener('click', async () => {
     btnUpdatePresence.disabled = true;
-    btnUpdatePresence.textContent = 'Updating...';
+    btnUpdatePresence.innerHTML = '<span>جاري حفظ وتحديث النشاط... ⏳</span>';
     const config = buildConfigFromForm();
+    saveFormToLocalStorage();
+
     try {
       const res = await fetch('/api/config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(config)
       });
       const data = await res.json();
       if (data.success) {
-        showToast('تم حفظ وتحديث النشاط على ديسكورد فوراً! ✓');
+        showToast('✓ تم حفظ جميع بياناتك وتحديث التواجد على ديسكورد فوراً!');
         // إذا كان التواجد متوقفاً، نطلب بدء الاتصال فوراً
         if (!appState || appState.status !== 'running') {
-          await fetch('/api/start', { method: 'POST' });
+          await fetch('/api/start', { method: 'POST', headers: getAuthHeaders() });
         }
       } else {
         showToast(data.message || 'فشل تحديث النشاط', true);
@@ -667,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('خطأ في الاتصال بالسيرفر: ' + e.message, true);
     } finally {
       btnUpdatePresence.disabled = false;
-      btnUpdatePresence.textContent = 'Update Presence';
+      btnUpdatePresence.innerHTML = '<span>🚀 حفظ وتحديث النشاط على ديسكورد فوراً</span>';
     }
   });
 
@@ -851,7 +883,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- REAL DISCORD AUTHENTICATION & USER MANAGEMENT ---
   let currentUser = null;
-  let sessionToken = localStorage.getItem('customrp_session_token') || null;
 
   const btnOpenDiscordLogin = document.getElementById('btnOpenDiscordLogin');
   const discordLoginModal = document.getElementById('discordLoginModal');
@@ -860,6 +891,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSubmitDiscordLogin = document.getElementById('btnSubmitDiscordLogin');
   const loginTokenInput = document.getElementById('loginTokenInput');
   const loginStatusFeedback = document.getElementById('loginStatusFeedback');
+  const btnPasteLoginToken = document.getElementById('btnPasteLoginToken');
+  const btnToggleLoginTokenVisibility = document.getElementById('btnToggleLoginTokenVisibility');
+
+  const btnOpen247CloudGuide = document.getElementById('btnOpen247CloudGuide');
+  const cloudGuideModal = document.getElementById('cloudGuideModal');
+  const btnCloseCloudGuideModal = document.getElementById('btnCloseCloudGuideModal');
+  const btnCloseCloudGuideFooter = document.getElementById('btnCloseCloudGuideFooter');
 
   const userProfilePill = document.getElementById('userProfilePill');
   const navUserAvatar = document.getElementById('navUserAvatar');
@@ -881,15 +919,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalProfileUserId = document.getElementById('modalProfileUserId');
   const modalProfileActiveApp = document.getElementById('modalProfileActiveApp');
   const btnModalLogout = document.getElementById('btnModalLogout');
-
-  // Helper for authenticated API calls
-  function getAuthHeaders() {
-    const headers = { 'Content-Type': 'application/json' };
-    if (sessionToken) {
-      headers['Authorization'] = `Bearer ${sessionToken}`;
-    }
-    return headers;
-  }
 
   // Update UI for Logged-In User
   function setLoggedInUser(user) {
@@ -966,10 +995,51 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCancelDiscordLogin.addEventListener('click', () => discordLoginModal.classList.remove('open'));
   }
 
+  // Paste Token Helper
+  if (btnPasteLoginToken) {
+    btnPasteLoginToken.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          const cleaned = text.trim().replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
+          loginTokenInput.value = cleaned;
+          showToast('تم لصق رمز التوكن وتنظيفه بنجاح ✓');
+        }
+      } catch (err) {
+        showToast('يرجى لصق التوكن يدوياً في الخانة (Ctrl+V)', true);
+      }
+    });
+  }
+
+  // Toggle Visibility Helper
+  if (btnToggleLoginTokenVisibility) {
+    btnToggleLoginTokenVisibility.addEventListener('click', () => {
+      if (loginTokenInput.type === 'password') {
+        loginTokenInput.type = 'text';
+        btnToggleLoginTokenVisibility.textContent = '🙈 إخفاء';
+      } else {
+        loginTokenInput.type = 'password';
+        btnToggleLoginTokenVisibility.textContent = '👁️ إظهار';
+      }
+    });
+  }
+
+  // 24/7 Cloud Guide Modal Listeners
+  if (btnOpen247CloudGuide && cloudGuideModal) {
+    btnOpen247CloudGuide.addEventListener('click', () => cloudGuideModal.classList.add('open'));
+  }
+  if (btnCloseCloudGuideModal && cloudGuideModal) {
+    btnCloseCloudGuideModal.addEventListener('click', () => cloudGuideModal.classList.remove('open'));
+  }
+  if (btnCloseCloudGuideFooter && cloudGuideModal) {
+    btnCloseCloudGuideFooter.addEventListener('click', () => cloudGuideModal.classList.remove('open'));
+  }
+
   // Submit Login
   if (btnSubmitDiscordLogin) {
     btnSubmitDiscordLogin.addEventListener('click', async () => {
-      const token = loginTokenInput.value.trim();
+      const rawToken = loginTokenInput.value.trim();
+      const token = rawToken.replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
       if (!token) {
         loginStatusFeedback.className = 'login-feedback error';
         loginStatusFeedback.textContent = 'يرجى إدخال رمز الحساب (Token)';
@@ -978,14 +1048,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       btnSubmitDiscordLogin.disabled = true;
-      btnSubmitDiscordLogin.innerHTML = '<span>جاري التحقق من ديسكورد...</span>';
+      btnSubmitDiscordLogin.innerHTML = '<span>جاري التحقق وحفظ البيانات... ⏳</span>';
       loginStatusFeedback.style.display = 'none';
 
       try {
+        const currentConfig = buildConfigFromForm();
+        currentConfig.token = token;
+
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token, currentConfig })
         });
         const data = await res.json();
 
@@ -998,9 +1071,10 @@ document.addEventListener('DOMContentLoaded', () => {
             populateFormFromState(data.config);
           }
           inpToken.value = token;
+          saveFormToLocalStorage();
 
           discordLoginModal.classList.remove('open');
-          showToast(`مرحباً بك يا ${data.user.displayName}! تم تسجيل الدخول وحفظ بياناتك بنجاح ✓`);
+          showToast(`مرحباً بك يا ${data.user.displayName}! تم تسجيل الدخول وحفظ بياناتك وتحديثها بنجاح ✓`);
         } else {
           loginStatusFeedback.className = 'login-feedback error';
           loginStatusFeedback.textContent = data.message || 'فشل تسجيل الدخول';
@@ -1012,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginStatusFeedback.style.display = 'block';
       } finally {
         btnSubmitDiscordLogin.disabled = false;
-        btnSubmitDiscordLogin.innerHTML = '<span>تسجيل الدخول الآن 🚀</span>';
+        btnSubmitDiscordLogin.innerHTML = '<span>تسجيل الدخول وحفظ البيانات 🚀</span>';
       }
     });
   }
