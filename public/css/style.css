@@ -1496,6 +1496,31 @@ body {
   animation: portalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.portal-dismiss-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #b9bbbe;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.portal-dismiss-btn:hover {
+  background: rgba(242, 63, 67, 0.2);
+  border-color: #f23f43;
+  color: #fff;
+}
+
 @keyframes portalPopIn {
   from {
     opacity: 0;

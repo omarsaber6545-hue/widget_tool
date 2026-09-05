@@ -46,12 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     smallThumb.addEventListener('load', () => { smallThumb.style.display = 'block'; });
     smallThumb.addEventListener('error', () => { smallThumb.style.display = 'none'; });
   }
-  if (cardLargeImg) {
-    cardLargeImg.addEventListener('error', () => { cardLargeImg.src = '/assets/logo.png'; });
-  }
-  if (cardSmallImg) {
-    cardSmallImg.addEventListener('error', () => { if (cardSmallBox) cardSmallBox.style.display = 'none'; });
-  }
 
   // Buttons
   const inpBtn1Text = document.getElementById('inpBtn1Text');
@@ -102,6 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const cardSmallBox = document.getElementById('cardSmallBox');
   const cardSmallImg = document.getElementById('cardSmallImg');
   const cardSmallTooltip = document.getElementById('cardSmallTooltip');
+
+  if (cardLargeImg) {
+    cardLargeImg.addEventListener('error', () => { cardLargeImg.src = '/assets/logo.png'; });
+  }
+  if (cardSmallImg) {
+    cardSmallImg.addEventListener('error', () => { if (cardSmallBox) cardSmallBox.style.display = 'none'; });
+  }
   const cardButtons = document.getElementById('cardButtons');
   const cardBtn1 = document.getElementById('cardBtn1');
   const cardBtn2 = document.getElementById('cardBtn2');
@@ -806,14 +807,34 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('menuSettingsToken').addEventListener('click', () => tokenModal.classList.add('open'));
 
   btnSaveTokenModal.addEventListener('click', async () => {
-    const token = inpToken.value.trim();
-    await fetch('/api/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token })
-    });
-    tokenModal.classList.remove('open');
-    showToast('Token saved successfully!');
+    const rawToken = inpToken.value.trim();
+    const token = rawToken.replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
+    if (!token) {
+      showToast('يرجى إدخال رمز الحساب (Token) أولاً', true);
+      return;
+    }
+    showToast('جاري التحقق وتسجيل الدخول بالحساب...');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, currentConfig: buildConfigFromForm() })
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        sessionToken = data.sessionToken;
+        localStorage.setItem('customrp_session_token', sessionToken);
+        localStorage.setItem('customrp_token', token);
+        localStorage.setItem('customrp_user_profile', JSON.stringify(data.user));
+        setLoggedInUser(data.user);
+        tokenModal.classList.remove('open');
+        showToast(`تم تسجيل الدخول وتحديث الحساب بنجاح: ${data.user.displayName}! ✓`);
+      } else {
+        showToast(data.message || 'فشل تسجيل الدخول: رمز الحساب غير صالح', true);
+      }
+    } catch (err) {
+      showToast('خطأ في الاتصال: ' + err.message, true);
+    }
   });
 
   btnToggleTokenVisibility.addEventListener('click', () => {
@@ -991,6 +1012,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopyConsoleCode = document.getElementById('btnCopyConsoleCode');
   const portalConsoleSnippet = document.getElementById('portalConsoleSnippet');
 
+  const btnOpenDiscordLogin = document.getElementById('btnOpenDiscordLogin');
+  const btnCloseLoginPortal = document.getElementById('btnCloseLoginPortal');
   const userProfilePill = document.getElementById('userProfilePill');
   const navUserAvatar = document.getElementById('navUserAvatar');
   const navUserDisplayName = document.getElementById('navUserDisplayName');
@@ -1004,23 +1027,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Helpers to switch screens
   function showDashboard(user) {
-    if (user) setLoggedInUser(user);
+    if (user) {
+      setLoggedInUser(user);
+    } else {
+      if (btnOpenDiscordLogin) btnOpenDiscordLogin.style.display = 'inline-flex';
+      if (userProfilePill) userProfilePill.style.display = 'none';
+    }
     if (loginGatePortal) loginGatePortal.style.display = 'none';
     if (mainAppLayout) mainAppLayout.style.display = 'block';
   }
 
   function showLoginGate() {
     currentUser = null;
+    if (btnOpenDiscordLogin) btnOpenDiscordLogin.style.display = 'inline-flex';
+    if (userProfilePill) userProfilePill.style.display = 'none';
     if (loginGatePortal) {
       loginGatePortal.style.display = 'flex';
       loginGatePortal.classList.remove('portal-fade-out');
     }
     if (mainAppLayout) mainAppLayout.style.display = 'none';
+    if (portalTokenInput) {
+      setTimeout(() => portalTokenInput.focus(), 100);
+    }
   }
 
   // Update UI for Logged-In User
   function setLoggedInUser(user) {
     currentUser = user;
+    if (btnOpenDiscordLogin) btnOpenDiscordLogin.style.display = 'none';
     if (userProfilePill) userProfilePill.style.display = 'flex';
 
     if (navUserAvatar) navUserAvatar.src = user.avatar;
@@ -1182,13 +1216,43 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           portalStatusFeedback.className = 'portal-feedback error';
           portalStatusFeedback.textContent = data.message || 'رمز الحساب غير صحيح أو منتهي الصلاحية';
+          portalStatusFeedback.style.display = 'block';
         }
       } catch (err) {
         portalStatusFeedback.className = 'portal-feedback error';
         portalStatusFeedback.textContent = 'خطأ في الاتصال بالسيرفر: ' + err.message;
+        portalStatusFeedback.style.display = 'block';
       } finally {
         btnPortalSubmit.disabled = false;
         btnPortalSubmit.innerHTML = '<span>🚀 تسجيل الدخول وتشغيل التواجد الآن</span>';
+      }
+    });
+  }
+
+  // Header Login Button
+  if (btnOpenDiscordLogin) {
+    btnOpenDiscordLogin.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showLoginGate();
+    });
+  }
+
+  // Close Login Portal to return to dashboard
+  if (btnCloseLoginPortal) {
+    btnCloseLoginPortal.addEventListener('click', () => {
+      loginGatePortal.classList.add('portal-fade-out');
+      setTimeout(() => {
+        showDashboard(currentUser);
+      }, 300);
+    });
+  }
+
+  // Press Enter to submit token
+  if (portalTokenInput && btnPortalSubmit) {
+    portalTokenInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnPortalSubmit.click();
       }
     });
   }
@@ -1239,7 +1303,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   if (btnLogout) btnLogout.addEventListener('click', handleLogout);
-  if (btnModalLogout) btnModalLogout.addEventListener('click', handleLogout);
 
   // 10. Initial Fetch
   async function init() {
