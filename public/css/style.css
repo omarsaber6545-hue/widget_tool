@@ -1451,3 +1451,296 @@ body {
 .btn-primary-action:active {
   transform: translateY(1px);
 }
+
+/* =======================================================
+   FULL-SCREEN DISCORD LOGIN GATE PORTAL
+======================================================= */
+.login-gate-portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+  background: #111214;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.portal-ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 20%, rgba(88, 101, 242, 0.22) 0%, transparent 65%);
+}
+
+.login-portal-card {
+  position: relative;
+  z-index: 2;
+  background: #1e1f22;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(88, 101, 242, 0.25);
+  padding: 36px 30px;
+  box-sizing: border-box;
+  animation: portalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes portalPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.portal-fade-out {
+  opacity: 0 !important;
+  transform: scale(0.96) !important;
+  pointer-events: none !important;
+}
+
+.login-portal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.portal-logo-glow {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  background: rgba(88, 101, 242, 0.15);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5865f2;
+  box-shadow: 0 0 35px rgba(88, 101, 242, 0.35);
+}
+
+.portal-title {
+  font-size: 23px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+.portal-subtitle {
+  font-size: 13px;
+  color: #949ba4;
+  margin: 0;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+.portal-field-group {
+  margin-bottom: 14px;
+}
+
+.portal-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.portal-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #b5bac1;
+}
+
+.portal-btn-group {
+  display: flex;
+  gap: 6px;
+}
+
+.portal-mini-btn {
+  background: #2b2d31;
+  color: #dbdee1;
+  border: 1px solid #3f4147;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.portal-mini-btn:hover {
+  background: #35373c;
+  color: #fff;
+  border-color: #5865f2;
+}
+
+.portal-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #111214;
+  border: 1px solid #3f4147;
+  border-radius: 8px;
+  padding: 13px 14px;
+  font-size: 14px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.portal-input:focus {
+  border-color: #5865f2;
+  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.3);
+}
+
+.portal-hint {
+  font-size: 11px;
+  color: #949ba4;
+  text-align: right;
+  margin: 8px 0 0;
+  line-height: 1.5;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+.portal-submit-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  background: linear-gradient(135deg, #5865f2, #4752c4);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(88, 101, 242, 0.4);
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+.portal-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(88, 101, 242, 0.6);
+  background: linear-gradient(135deg, #4752c4, #3c45a5);
+}
+
+.portal-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.portal-feedback {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-align: right;
+  line-height: 1.5;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+.portal-feedback.error {
+  background: rgba(242, 63, 67, 0.15);
+  border: 1px solid #f23f43;
+  color: #f23f43;
+}
+
+.portal-feedback.info {
+  background: rgba(88, 101, 242, 0.15);
+  border: 1px solid #5865f2;
+  color: #5865f2;
+}
+
+.portal-feedback.success {
+  background: rgba(35, 165, 90, 0.15);
+  border: 1px solid #23a55a;
+  color: #23a55a;
+}
+
+.portal-quick-guide {
+  margin-top: 16px;
+  text-align: right;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+}
+
+.portal-guide-summary {
+  font-size: 12px;
+  color: #5865f2;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+.portal-guide-content {
+  margin-top: 10px;
+  padding: 12px;
+  background: #111214;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #b5bac1;
+  line-height: 1.6;
+  border: 1px solid #2b2d31;
+}
+
+.portal-guide-content ol {
+  margin: 0 0 8px 18px;
+  padding: 0;
+}
+
+.portal-code-box {
+  background: #000;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.portal-code-box code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #57f287;
+  word-break: break-all;
+  direction: ltr;
+  text-align: left;
+}
+
+.portal-code-copy-btn {
+  background: #2b2d31;
+  color: #fff;
+  border: 1px solid #3f4147;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.portal-code-copy-btn:hover {
+  background: #5865f2;
+  border-color: #5865f2;
+}
+
+.portal-device-guarantee {
+  margin-top: 18px;
+  font-size: 11px;
+  color: #23a55a;
+  text-align: center;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
+  font-weight: 600;
+}
+

@@ -881,18 +881,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // --- REAL DISCORD AUTHENTICATION & USER MANAGEMENT ---
+  // --- REAL DISCORD AUTHENTICATION & FULL-SCREEN LOGIN GATE PORTAL ---
   let currentUser = null;
 
-  const btnOpenDiscordLogin = document.getElementById('btnOpenDiscordLogin');
-  const discordLoginModal = document.getElementById('discordLoginModal');
-  const btnCloseDiscordLoginModal = document.getElementById('btnCloseDiscordLoginModal');
-  const btnCancelDiscordLogin = document.getElementById('btnCancelDiscordLogin');
-  const btnSubmitDiscordLogin = document.getElementById('btnSubmitDiscordLogin');
-  const loginTokenInput = document.getElementById('loginTokenInput');
-  const loginStatusFeedback = document.getElementById('loginStatusFeedback');
-  const btnPasteLoginToken = document.getElementById('btnPasteLoginToken');
-  const btnToggleLoginTokenVisibility = document.getElementById('btnToggleLoginTokenVisibility');
+  const loginGatePortal = document.getElementById('loginGatePortal');
+  const mainAppLayout = document.getElementById('mainAppLayout');
+  const portalTokenInput = document.getElementById('portalTokenInput');
+  const btnPortalPasteToken = document.getElementById('btnPortalPasteToken');
+  const btnPortalToggleToken = document.getElementById('btnPortalToggleToken');
+  const btnPortalSubmit = document.getElementById('btnPortalSubmit');
+  const portalStatusFeedback = document.getElementById('portalStatusFeedback');
+  const btnCopyConsoleCode = document.getElementById('btnCopyConsoleCode');
+  const portalConsoleSnippet = document.getElementById('portalConsoleSnippet');
 
   const btnOpen247CloudGuide = document.getElementById('btnOpen247CloudGuide');
   const cloudGuideModal = document.getElementById('cloudGuideModal');
@@ -920,10 +920,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalProfileActiveApp = document.getElementById('modalProfileActiveApp');
   const btnModalLogout = document.getElementById('btnModalLogout');
 
+  // Helpers to switch screens
+  function showDashboard(user) {
+    if (user) setLoggedInUser(user);
+    if (loginGatePortal) loginGatePortal.style.display = 'none';
+    if (mainAppLayout) mainAppLayout.style.display = 'block';
+  }
+
+  function showLoginGate() {
+    currentUser = null;
+    if (loginGatePortal) {
+      loginGatePortal.style.display = 'flex';
+      loginGatePortal.classList.remove('portal-fade-out');
+    }
+    if (mainAppLayout) mainAppLayout.style.display = 'none';
+  }
+
   // Update UI for Logged-In User
   function setLoggedInUser(user) {
     currentUser = user;
-    if (btnOpenDiscordLogin) btnOpenDiscordLogin.style.display = 'none';
     if (userProfilePill) userProfilePill.style.display = 'flex';
 
     if (navUserAvatar) navUserAvatar.src = user.avatar;
@@ -946,63 +961,57 @@ document.addEventListener('DOMContentLoaded', () => {
     cardUsername.textContent = `@${user.username}`;
   }
 
-  // Update UI for Logged-Out State
-  function setLoggedOutUser() {
-    currentUser = null;
-    sessionToken = null;
-    localStorage.removeItem('customrp_session_token');
-    if (btnOpenDiscordLogin) btnOpenDiscordLogin.style.display = 'flex';
-    if (userProfilePill) userProfilePill.style.display = 'none';
-    if (userProfileDropdown) userProfileDropdown.classList.remove('open');
-  }
-
-  // Check Current Session with Backend
+  // Check Current Session & Remembered Device
   async function checkAuthSession() {
-    if (!sessionToken) return false;
+    const savedUserJson = localStorage.getItem('customrp_user_profile');
+    const savedSession = localStorage.getItem('customrp_session_token');
+    const savedToken = localStorage.getItem('customrp_token');
+
+    // إذا كان هذا الجهاز قد سجل دخوله سابقاً، اعرض لوحة التحكم فوراً بدون أي تأخير!
+    if (savedUserJson && (savedSession || savedToken)) {
+      try {
+        const cachedUser = JSON.parse(savedUserJson);
+        showDashboard(cachedUser);
+      } catch (e) {
+        showLoginGate();
+      }
+    } else {
+      showLoginGate();
+    }
+
+    if (!sessionToken && !savedSession) return false;
+
+    // التحقق في الخلفية مع السيرفر لتحديث الصلاحيات
     try {
       const res = await fetch('/api/auth/me', {
         headers: getAuthHeaders()
       });
       const data = await res.json();
       if (data.success && data.authenticated && data.user) {
-        setLoggedInUser(data.user);
+        localStorage.setItem('customrp_user_profile', JSON.stringify(data.user));
+        showDashboard(data.user);
         if (data.config) {
           populateFormFromState(data.config);
         }
         return true;
-      } else {
-        setLoggedOutUser();
+      } else if (!savedUserJson) {
+        showLoginGate();
       }
-    } catch (e) {}
+    } catch (e) {
+      if (savedUserJson) return true;
+      showLoginGate();
+    }
     return false;
   }
 
-  // Event Listeners for Login & Profile
-  if (btnOpenDiscordLogin) {
-    btnOpenDiscordLogin.addEventListener('click', () => {
-      loginStatusFeedback.style.display = 'none';
-      if (inpToken.value.trim()) {
-        loginTokenInput.value = inpToken.value.trim();
-      }
-      discordLoginModal.classList.add('open');
-    });
-  }
-
-  if (btnCloseDiscordLoginModal) {
-    btnCloseDiscordLoginModal.addEventListener('click', () => discordLoginModal.classList.remove('open'));
-  }
-  if (btnCancelDiscordLogin) {
-    btnCancelDiscordLogin.addEventListener('click', () => discordLoginModal.classList.remove('open'));
-  }
-
-  // Paste Token Helper
-  if (btnPasteLoginToken) {
-    btnPasteLoginToken.addEventListener('click', async () => {
+  // --- Login Gate Portal Listeners ---
+  if (btnPortalPasteToken && portalTokenInput) {
+    btnPortalPasteToken.addEventListener('click', async () => {
       try {
         const text = await navigator.clipboard.readText();
         if (text) {
           const cleaned = text.trim().replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
-          loginTokenInput.value = cleaned;
+          portalTokenInput.value = cleaned;
           showToast('تم لصق رمز التوكن وتنظيفه بنجاح ✓');
         }
       } catch (err) {
@@ -1011,15 +1020,99 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Toggle Visibility Helper
-  if (btnToggleLoginTokenVisibility) {
-    btnToggleLoginTokenVisibility.addEventListener('click', () => {
-      if (loginTokenInput.type === 'password') {
-        loginTokenInput.type = 'text';
-        btnToggleLoginTokenVisibility.textContent = '🙈 إخفاء';
+  if (btnPortalToggleToken && portalTokenInput) {
+    btnPortalToggleToken.addEventListener('click', () => {
+      if (portalTokenInput.type === 'password') {
+        portalTokenInput.type = 'text';
+        btnPortalToggleToken.textContent = '🙈 إخفاء';
       } else {
-        loginTokenInput.type = 'password';
-        btnToggleLoginTokenVisibility.textContent = '👁️ إظهار';
+        portalTokenInput.type = 'password';
+        btnPortalToggleToken.textContent = '👁️ إظهار';
+      }
+    });
+  }
+
+  if (btnCopyConsoleCode && portalConsoleSnippet) {
+    btnCopyConsoleCode.addEventListener('click', () => {
+      const code = portalConsoleSnippet.textContent;
+      navigator.clipboard.writeText(code);
+      btnCopyConsoleCode.textContent = 'تم النسخ ✓';
+      setTimeout(() => {
+        btnCopyConsoleCode.textContent = '📋 نسخ الكود';
+      }, 2000);
+      showToast('تم نسخ كود استخراج التوكن بنجاح! الصقه في Console بمتصفح ديسكورد');
+    });
+  }
+
+  // Submit Login from Portal
+  if (btnPortalSubmit && portalTokenInput) {
+    btnPortalSubmit.addEventListener('click', async () => {
+      const rawToken = portalTokenInput.value.trim();
+      const token = rawToken.replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
+      if (!token) {
+        portalStatusFeedback.className = 'portal-feedback error';
+        portalStatusFeedback.textContent = 'يرجى إدخال رمز الحساب (Token) أولاً!';
+        portalStatusFeedback.style.display = 'block';
+        return;
+      }
+
+      btnPortalSubmit.disabled = true;
+      btnPortalSubmit.innerHTML = '<span>جاري التحقق وقراءة بياناتك... ⏳</span>';
+      portalStatusFeedback.className = 'portal-feedback info';
+      portalStatusFeedback.textContent = 'جاري الاتصال بخوادم ديسكورد الرسمية وقراءة هويتك وصورتك الشخصية...';
+      portalStatusFeedback.style.display = 'block';
+
+      try {
+        const currentConfig = buildConfigFromForm();
+        currentConfig.token = token;
+
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, currentConfig })
+        });
+        const data = await res.json();
+
+        if (data.success && data.user) {
+          sessionToken = data.sessionToken;
+          // حفظ دائم على هذا الجهاز في localStorage
+          localStorage.setItem('customrp_session_token', sessionToken);
+          localStorage.setItem('customrp_token', token);
+          localStorage.setItem('customrp_user_profile', JSON.stringify(data.user));
+
+          setLoggedInUser(data.user);
+          if (data.config) {
+            populateFormFromState(data.config);
+          }
+          inpToken.value = token;
+          saveFormToLocalStorage();
+
+          portalStatusFeedback.className = 'portal-feedback success';
+          portalStatusFeedback.innerHTML = `✓ مرحباً بك يا <strong>${data.user.displayName}</strong>! تم قراءة البروفايل وتثبيت بياناتك على هذا الجهاز وتشغيل التواجد!`;
+
+          // تشغيل التواجد فوراً
+          try {
+            await fetch('/api/start', { method: 'POST', headers: getAuthHeaders() });
+          } catch (e) {}
+
+          // إخفاء واجهة الدخول والانتقال إلى لوحة التحكم بسلاسة
+          setTimeout(() => {
+            loginGatePortal.classList.add('portal-fade-out');
+            setTimeout(() => {
+              showDashboard(data.user);
+              showToast(`أهلاً بك يا ${data.user.displayName}! تم تشغيل التواجد وحفظ بياناتك على هذا الجهاز بنجاح ✓`);
+            }, 350);
+          }, 700);
+        } else {
+          portalStatusFeedback.className = 'portal-feedback error';
+          portalStatusFeedback.textContent = data.message || 'رمز الحساب غير صحيح أو منتهي الصلاحية';
+        }
+      } catch (err) {
+        portalStatusFeedback.className = 'portal-feedback error';
+        portalStatusFeedback.textContent = 'خطأ في الاتصال بالسيرفر: ' + err.message;
+      } finally {
+        btnPortalSubmit.disabled = false;
+        btnPortalSubmit.innerHTML = '<span>🚀 تسجيل الدخول وتشغيل التواجد الآن</span>';
       }
     });
   }
@@ -1033,62 +1126,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (btnCloseCloudGuideFooter && cloudGuideModal) {
     btnCloseCloudGuideFooter.addEventListener('click', () => cloudGuideModal.classList.remove('open'));
-  }
-
-  // Submit Login
-  if (btnSubmitDiscordLogin) {
-    btnSubmitDiscordLogin.addEventListener('click', async () => {
-      const rawToken = loginTokenInput.value.trim();
-      const token = rawToken.replace(/^["']|["']$/g, '').replace(/^Bot\s+/i, '');
-      if (!token) {
-        loginStatusFeedback.className = 'login-feedback error';
-        loginStatusFeedback.textContent = 'يرجى إدخال رمز الحساب (Token)';
-        loginStatusFeedback.style.display = 'block';
-        return;
-      }
-
-      btnSubmitDiscordLogin.disabled = true;
-      btnSubmitDiscordLogin.innerHTML = '<span>جاري التحقق وحفظ البيانات... ⏳</span>';
-      loginStatusFeedback.style.display = 'none';
-
-      try {
-        const currentConfig = buildConfigFromForm();
-        currentConfig.token = token;
-
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, currentConfig })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          sessionToken = data.sessionToken;
-          localStorage.setItem('customrp_session_token', sessionToken);
-          setLoggedInUser(data.user);
-
-          if (data.config) {
-            populateFormFromState(data.config);
-          }
-          inpToken.value = token;
-          saveFormToLocalStorage();
-
-          discordLoginModal.classList.remove('open');
-          showToast(`مرحباً بك يا ${data.user.displayName}! تم تسجيل الدخول وحفظ بياناتك وتحديثها بنجاح ✓`);
-        } else {
-          loginStatusFeedback.className = 'login-feedback error';
-          loginStatusFeedback.textContent = data.message || 'فشل تسجيل الدخول';
-          loginStatusFeedback.style.display = 'block';
-        }
-      } catch (err) {
-        loginStatusFeedback.className = 'login-feedback error';
-        loginStatusFeedback.textContent = 'خطأ في الاتصال بالسيرفر: ' + err.message;
-        loginStatusFeedback.style.display = 'block';
-      } finally {
-        btnSubmitDiscordLogin.disabled = false;
-        btnSubmitDiscordLogin.innerHTML = '<span>تسجيل الدخول وحفظ البيانات 🚀</span>';
-      }
-    });
   }
 
   // Profile Dropdown Toggle
@@ -1128,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCloseAccountDetailsModal.addEventListener('click', () => accountDetailsModal.classList.remove('open'));
   }
 
-  // Logout
+  // Logout - Clear device persistence and return to Login Gate
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', {
@@ -1136,9 +1173,18 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: getAuthHeaders()
       });
     } catch (e) {}
-    setLoggedOutUser();
+    currentUser = null;
+    sessionToken = null;
+    localStorage.removeItem('customrp_session_token');
+    localStorage.removeItem('customrp_token');
+    localStorage.removeItem('customrp_user_profile');
     if (accountDetailsModal) accountDetailsModal.classList.remove('open');
-    showToast('تم تسجيل الخروج بنجاح.');
+    if (userProfileDropdown) userProfileDropdown.classList.remove('open');
+    
+    showLoginGate();
+    if (portalTokenInput) portalTokenInput.value = '';
+    if (portalStatusFeedback) portalStatusFeedback.style.display = 'none';
+    showToast('تم تسجيل الخروج ومسح بيانات هذا الجهاز بنجاح.');
   };
 
   if (btnLogout) btnLogout.addEventListener('click', handleLogout);

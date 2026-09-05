@@ -11,6 +11,68 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- Full-Screen Login Gate Portal (واجهة تسجيل الدخول الرسمية الكاملة) -->
+  <div id="loginGatePortal" class="login-gate-portal">
+    <div class="portal-ambient-glow"></div>
+    <div class="login-portal-card">
+      <div class="login-portal-header">
+        <div class="portal-logo-glow">
+          <svg class="portal-discord-logo" viewBox="0 0 127.14 96.36" width="64" height="48">
+            <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+          </svg>
+        </div>
+        <h1 class="portal-title">تسجيل الدخول إلى CustomRP Cloud</h1>
+        <p class="portal-subtitle">لوحة التحكم السحابية لتشغيل حالة ونشاط ديسكورد 24/7</p>
+      </div>
+
+      <div class="login-portal-body">
+        <div class="portal-field-group">
+          <div class="portal-label-row">
+            <label for="portalTokenInput" class="portal-label">رمز الحساب (Discord User Token):</label>
+            <div class="portal-btn-group">
+              <button type="button" id="btnPortalPasteToken" class="portal-mini-btn" title="لصق التوكن من الحافظة">📋 لصق التوكن</button>
+              <button type="button" id="btnPortalToggleToken" class="portal-mini-btn" title="إظهار أو إخفاء التوكن">👁️ إظهار</button>
+            </div>
+          </div>
+          <div class="portal-input-wrap">
+            <input type="password" id="portalTokenInput" class="portal-input" placeholder="الصق رمز التوكن الخاص بحسابك هنا للبدء..." autocomplete="off">
+          </div>
+          <p class="portal-hint">سيقوم الموقع فوراً بقراءة هويتك واسمك وصورتك الشخصية وتشغيل التواجد على ديسكورد وحفظ بياناتك على هذا الجهاز.</p>
+        </div>
+
+        <div id="portalStatusFeedback" class="portal-feedback" style="display: none;"></div>
+
+        <button type="button" id="btnPortalSubmit" class="portal-submit-btn">
+          <span>🚀 تسجيل الدخول وتشغيل التواجد الآن</span>
+        </button>
+
+        <div class="portal-quick-guide">
+          <details class="portal-guide-details">
+            <summary class="portal-guide-summary">💡 كيف تحصل على التوكن في 5 ثوانٍ بضغطة زر؟</summary>
+            <div class="portal-guide-content">
+              <ol>
+                <li>افتح متصفح الكمبيوتر وسجل دخولك إلى <strong>Discord Web</strong>.</li>
+                <li>اضغط على <strong>Ctrl + Shift + I</strong> لفتح أدوات المطورين (Inspect).</li>
+                <li>اذهب إلى تبويب <strong>Console</strong> والصق الكود التالي واضغط Enter:</li>
+              </ol>
+              <div class="portal-code-box">
+                <code id="portalConsoleSnippet">(webpackChunkdiscord_app.push([[''],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]),m).find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()</code>
+                <button type="button" id="btnCopyConsoleCode" class="portal-code-copy-btn">📋 نسخ الكود</button>
+              </div>
+              <p>سيظهر التوكن الخاص بك، انسخه والصقه في الخانة بالأعلى مباشرة!</p>
+            </div>
+          </details>
+        </div>
+
+        <div class="portal-device-guarantee">
+          <span>🔒 أمان وتخزين دائم: سيتم تذكر هذا الجهاز تلقائياً ولن تضطر لإدخال التوكن مرة أخرى.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Layout (لوحة التحكم الرئيسية) -->
+  <div id="mainAppLayout" class="main-app-layout">
   <!-- Top Utility Bar for 24/7 Controls and Live Preview Toggle -->
   <div class="top-nav-bar">
     <div class="top-nav-left">
@@ -532,48 +594,6 @@
     </div>
   </div>
 
-  <!-- Modal: Discord Login Modal (تسجيل دخول حقيقي بديسكورد) -->
-  <div class="win-modal-backdrop" id="discordLoginModal">
-    <div class="win-modal-card discord-auth-card">
-      <div class="win-modal-header discord-auth-header">
-        <div class="discord-header-title">
-          <svg class="discord-logo-icon" viewBox="0 0 127.14 96.36" width="22" height="18">
-            <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
-          </svg>
-          <span>تسجيل الدخول بحساب ديسكورد الرسمي</span>
-        </div>
-        <button class="win-modal-close" id="btnCloseDiscordLoginModal">✕</button>
-      </div>
-      <div class="win-modal-body">
-        <p class="modal-sub">قم بربط حسابك لحفظ بروفايلك وإعدادات التواجد (CustomRP) الخاصة بك دائماً على السحابة وتحديثها فوراً.</p>
-        
-        <div class="setting-block">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label class="field-label" for="loginTokenInput" style="margin: 0;">رمز الحساب (Discord User Token):</label>
-            <div style="display: flex; gap: 6px;">
-              <button type="button" id="btnPasteLoginToken" class="btn-copy-mini" title="لصق التوكن من الحافظة">📋 لصق</button>
-              <button type="button" id="btnToggleLoginTokenVisibility" class="btn-copy-mini" title="إظهار أو إخفاء التوكن">👁️ إظهار</button>
-            </div>
-          </div>
-          <input type="password" id="loginTokenInput" class="win-input full-width" placeholder="الصق رمز التوكن الخاص بحسابك هنا..." autocomplete="off">
-          <p class="field-hint">يتم فحص التوكن مباشرة مع خوادم ديسكورد الرسمية والتأكد من هويتك وتنزيل صورتك الشخصية واسمك وحفظ إعداداتك.</p>
-        </div>
-
-        <div class="login-why-box" style="margin-top: 10px; padding: 10px; background: rgba(88, 101, 242, 0.1); border: 1px solid rgba(88, 101, 242, 0.3); border-radius: 6px; font-size: 11px; line-height: 1.5; color: #dcddde;">
-          <strong style="color: #5865f2;">💡 لماذا يطلب الموقع رمز التوكن؟</strong>
-          <p style="margin: 4px 0 0 0;">لأن ديسكورد تمنع تشغيل الألعاب وحالة التواجد (Rich Presence) عبر زر الـ OAuth العادي. التوكن هو الطريقة الرسمية الوحيدة للاتصال بـ Discord Gateway وتحديث نشاطك 24 ساعة.</p>
-        </div>
-
-        <div id="loginStatusFeedback" class="login-feedback" style="display: none; margin-top: 10px;"></div>
-      </div>
-      <div class="modal-footer">
-        <button id="btnCancelDiscordLogin" class="win-button">إلغاء</button>
-        <button id="btnSubmitDiscordLogin" class="win-button btn-discord-primary">
-          <span>تسجيل الدخول وحفظ البيانات 🚀</span>
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- Modal: 24/7 Cloud Free Hosting Guide (دليل التشغيل 24 ساعة بالسحابة مجاناً) -->
   <div class="win-modal-backdrop" id="cloudGuideModal">
@@ -648,7 +668,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- end #mainAppLayout -->
 
   <!-- Hidden File Input for CRP Presets -->
   <input type="file" id="filePickerCrp" accept=".crp,.xml" style="display: none;">
